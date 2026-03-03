@@ -1,14 +1,6 @@
 import { motion } from "motion/react";
 import { ArrowDown, ArrowRight, Zap, Globe, Shield } from "lucide-react";
-import { GlassCard } from "./GlassCard";
 import { ThroneIcon } from "./ThroneIcon";
-
-const stats = [
-  { value: "6+",   label: "Years Experience" },
-  { value: "Full-Stack", label: "Web & Mobile" },
-  { value: "Agile",      label: "Flexible Delivery" },
-  { value: "Partner-First", label: "Approach" },
-];
 
 const pillars = [
   { icon: Zap,    label: "High Performance" },
@@ -16,13 +8,14 @@ const pillars = [
   { icon: Shield, label: "Enterprise-Grade" },
 ];
 
+const coreStack = ["React", "Vite", "TypeScript", "Rails", "PostgreSQL", "Tailwind", "AWS"];
+
 export function Hero() {
   return (
     <section id="hero" className="min-h-screen flex items-center justify-center px-4 pt-28 pb-16 relative">
-      <div className="max-w-6xl w-full mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-6xl w-full mx-auto flex flex-col items-center text-center">
 
-        {/* ── Left ── */}
-        <div className="space-y-8">
+        <div className="space-y-8 max-w-2xl">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -80,6 +73,7 @@ export function Hero() {
                 color: "rgba(255,255,255,0.45)",
                 maxWidth: "480px",
                 lineHeight: 1.7,
+                margin: "0 auto",
               }}
             >
               Throne Technology crafts world-class web applications, mobile experiences,
@@ -92,7 +86,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-wrap gap-4"
+            className="flex flex-wrap justify-center gap-4"
           >
             <button
               className="px-7 py-3.5 rounded-xl text-black text-sm flex items-center gap-2 transition-all duration-300"
@@ -144,7 +138,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.65 }}
-            className="flex flex-wrap gap-3"
+            className="flex flex-wrap justify-center gap-3"
           >
             {pillars.map(({ icon: Icon, label }) => (
               <div
@@ -162,123 +156,30 @@ export function Hero() {
               </div>
             ))}
           </motion.div>
-        </div>
 
-        {/* ── Right — stats + feature card ── */}
-        <motion.div
-          initial={{ opacity: 0, x: 60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, delay: 0.4, ease: "easeOut" }}
-          className="space-y-5"
-        >
-          {/* Main glass card */}
-          <GlassCard
-            tilt
-            glow="rgba(212, 175, 55, 0.12)"
-            className="p-7"
-            style={{
-              border: "1px solid rgba(212,175,55,0.18)",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.6), 0 0 80px rgba(212,175,55,0.08)",
-            }}
+          {/* Core Stack */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.75 }}
+            className="flex flex-wrap justify-center gap-2"
           >
-            {/* Card header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <ThroneIcon size={32} />
-                <div>
-                  <div
-                    style={{
-                      fontFamily: "'Space Grotesk', sans-serif",
-                      fontWeight: 700,
-                      fontSize: "1.05rem",
-                      background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    THRONE TECHNOLOGY
-                  </div>
-                  <div style={{ color: "rgba(212,175,55,0.5)", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", letterSpacing: "0.12em" }}>
-                    AGENCY OVERVIEW
-                  </div>
-                </div>
-              </div>
-              <div
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)" }}
+            {coreStack.map((t) => (
+              <span
+                key={t}
+                className="px-2.5 py-1 rounded-lg text-xs"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  color: "rgba(255,255,255,0.55)",
+                  fontFamily: "'Fira Code', monospace",
+                }}
               >
-                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#10b981" }} />
-                <span style={{ color: "#10b981", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500 }}>
-                  Taking Clients
-                </span>
-              </div>
-            </div>
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {stats.map(({ value, label }) => (
-                <div
-                  key={label}
-                  className="p-4 rounded-xl"
-                  style={{
-                    background: "rgba(212, 175, 55, 0.06)",
-                    border: "1px solid rgba(212, 175, 55, 0.1)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontFamily: "'Space Grotesk', sans-serif",
-                      fontWeight: 700,
-                      fontSize: "1.8rem",
-                      lineHeight: 1,
-                      background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      backgroundClip: "text",
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {value}
-                  </div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", marginTop: "4px" }}>
-                    {label}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Divider */}
-            <div
-              className="h-px w-full mb-5"
-              style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent)" }}
-            />
-
-            {/* Tech stack row */}
-            <div>
-              <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                Core Stack
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {["React", "Vite", "TypeScript", "Rails", "PostgreSQL", "Tailwind", "AWS"].map((t) => (
-                  <span
-                    key={t}
-                    className="px-2.5 py-1 rounded-lg text-xs"
-                    style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                      color: "rgba(255,255,255,0.55)",
-                      fontFamily: "'Fira Code', monospace",
-                    }}
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </GlassCard>
-        </motion.div>
+                {t}
+              </span>
+            ))}
+          </motion.div>
+        </div>
       </div>
 
       {/* Scroll indicator */}
