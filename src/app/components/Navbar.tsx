@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X } from "lucide-react";
-import { ThroneIcon } from "./ThroneIcon";
 import type { Page } from "../App";
 
 const navLinks = ["About", "Services", "Projects", "Contact"];
@@ -42,19 +41,22 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
             : "none",
         }}
       >
-        {/* Logo */}
+        {/* Logo - words only */}
         <button
-          className="flex items-center gap-2.5 cursor-pointer"
+          className="flex items-center cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <ThroneIcon size={28} />
-          <div className="flex flex-col leading-none">
+          <div
+            className="flex items-baseline gap-1.5"
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
             <span
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
                 fontWeight: 700,
-                fontSize: "1rem",
-                letterSpacing: "-0.01em",
+                fontSize: "1.1rem",
+                letterSpacing: "-0.02em",
                 background: "linear-gradient(135deg, #F0D060, #D4AF37)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -65,11 +67,10 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
             </span>
             <span
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontWeight: 400,
-                fontSize: "0.6rem",
-                letterSpacing: "0.2em",
-                color: "rgba(212, 175, 55, 0.6)",
+                fontWeight: 500,
+                fontSize: "0.95rem",
+                letterSpacing: "0.08em",
+                color: "rgba(212, 175, 55, 0.7)",
                 textTransform: "uppercase",
               }}
             >
