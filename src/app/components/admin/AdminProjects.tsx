@@ -2,15 +2,19 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus, Search, Pencil, Trash2, Eye, EyeOff, Star, StarOff,
-  ExternalLink, Filter, LayoutGrid, List,
+  ExternalLink, LayoutGrid, List, GripVertical,
 } from "lucide-react";
+import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import { useProjects, type Project } from "../../context/ProjectsContext";
 import { ProjectModal } from "./ProjectModal";
+
+const PROJECT_ITEM_TYPE = "PROJECT_ITEM";
 
 type View = "grid" | "list";
 
 export function AdminProjects() {
-  const { projects, addProject, updateProject, deleteProject } = useProjects();
+  const { projects, addProject, updateProject, deleteProject, reorderProjects } = useProjects();
   const [modalOpen, setModalOpen]   = useState(false);
   const [editing, setEditing]       = useState<Project | null>(null);
   const [search, setSearch]         = useState("");
@@ -22,10 +26,20 @@ export function AdminProjects() {
     const matchSearch =
       p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.client.toLowerCase().includes(search.toLowerCase()) ||
-      p.category.toLowerCase().includes(search.toLowerCase());
+      (p.category || "").toLowerCase().includes(search.toLowerCase());
     const matchStatus = filterStatus === "all" || p.status === filterStatus;
     return matchSearch && matchStatus;
   });
+
+  const canReorder = filterStatus === "all" && search.trim() === "";
+
+  const handleReorder = (dragIndex: number, dropIndex: number) => {
+    if (dragIndex === dropIndex) return;
+    const next = [...filtered];
+    const [removed] = next.splice(dragIndex, 1);
+    next.splice(dropIndex, 0, removed);
+    reorderProjects(next);
+  };
 
   const openAdd  = () => { setEditing(null); setModalOpen(true); };
   const openEdit = (p: Project) => { setEditing(p); setModalOpen(true); };
@@ -199,108 +213,140 @@ export function AdminProjects() {
           {search || filterStatus !== "all" ? "No projects match your filters." : "No projects yet — add your first one!"}
         </motion.div>
       ) : view === "grid" ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          <AnimatePresence>
-            {filtered.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3, delay: i * 0.04 }}
-                layout
-              >
-                <ProjectCard
-                  project={p}
-                  onEdit={() => openEdit(p)}
-                  onDelete={() => setConfirmDelete(p.id)}
-                  onToggleStatus={() => toggleStatus(p)}
-                  onToggleFeatured={() => toggleFeatured(p)}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      ) : (
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(212,175,55,0.1)" }}
-        >
-          {/* Table header */}
-          <div
-            className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3 text-xs uppercase tracking-wider"
-            style={{ color: "rgba(212,175,55,0.4)", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, borderBottom: "1px solid rgba(212,175,55,0.08)" }}
-          >
-            <span>Project</span>
-            <span className="hidden md:block">Category</span>
-            <span className="hidden sm:block">Featured</span>
-            <span>Status</span>
-            <span>Actions</span>
-          </div>
-
-          <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+        <DndProvider backend={HTML5Backend}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <AnimatePresence>
               {filtered.map((p, i) => (
                 <motion.div
                   key={p.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.25, delay: i * 0.03 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: i * 0.04 }}
                   layout
-                  className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3.5 items-center transition-colors duration-150"
-                  style={{ borderColor: "rgba(255,255,255,0.04)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,175,55,0.03)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0" style={{ border: `1px solid ${p.color}25` }}>
-                      <img src={p.image ?? "https://placehold.co/100/1a1a1a/666?text=+"} alt={p.title} className="w-full h-full object-cover opacity-60" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.85rem" }}>{p.title}</div>
-                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif" }}>{p.client}</div>
-                    </div>
-                  </div>
-
-                  <span className="hidden md:block px-2.5 py-1 rounded-lg text-xs" style={{ background: `${p.color}15`, color: p.color, fontFamily: "'Fira Code', monospace", whiteSpace: "nowrap" }}>
-                    {p.category}
-                  </span>
-
-                  <button
-                    className="hidden sm:flex w-8 h-8 items-center justify-center rounded-lg transition-colors duration-150"
-                    onClick={() => toggleFeatured(p)}
-                    style={{ background: "transparent", border: "none", cursor: "pointer", color: p.featured ? "#D4AF37" : "rgba(255,255,255,0.2)" }}
-                  >
-                    {p.featured ? <Star size={14} fill="#D4AF37" /> : <StarOff size={14} />}
-                  </button>
-
-                  <button
-                    onClick={() => toggleStatus(p)}
-                    className="px-2.5 py-1 rounded-full text-xs transition-all duration-150 flex items-center gap-1.5"
-                    style={{
-                      background: p.status === "published" ? "rgba(16,185,129,0.12)" : "rgba(156,163,175,0.1)",
-                      border: p.status === "published" ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(156,163,175,0.18)",
-                      color: p.status === "published" ? "#10b981" : "#9ca3af",
-                      fontFamily: "'Space Grotesk', sans-serif",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {p.status === "published" ? <Eye size={10} /> : <EyeOff size={10} />}
-                    {p.status}
-                  </button>
-
-                  <div className="flex gap-1.5">
-                    <ActionBtn icon={Pencil} color="#D4AF37" title="Edit" onClick={() => openEdit(p)} />
-                    <ActionBtn icon={Trash2} color="#f87171" title="Delete" onClick={() => setConfirmDelete(p.id)} />
-                  </div>
+                  {canReorder ? (
+                    <DraggableProjectCard
+                      project={p}
+                      index={i}
+                      onReorder={handleReorder}
+                      onEdit={() => openEdit(p)}
+                      onDelete={() => setConfirmDelete(p.id)}
+                      onToggleStatus={() => toggleStatus(p)}
+                      onToggleFeatured={() => toggleFeatured(p)}
+                    />
+                  ) : (
+                    <ProjectCard
+                      project={p}
+                      onEdit={() => openEdit(p)}
+                      onDelete={() => setConfirmDelete(p.id)}
+                      onToggleStatus={() => toggleStatus(p)}
+                      onToggleFeatured={() => toggleFeatured(p)}
+                    />
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
-        </div>
+        </DndProvider>
+      ) : (
+        <DndProvider backend={HTML5Backend}>
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(212,175,55,0.1)" }}
+          >
+            {/* Table header */}
+            <div
+              className="grid gap-4 px-5 py-3 text-xs uppercase tracking-wider"
+              style={{
+                gridTemplateColumns: canReorder ? "auto 1fr auto auto auto auto" : "1fr auto auto auto auto",
+                color: "rgba(212,175,55,0.4)",
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontWeight: 600,
+                borderBottom: "1px solid rgba(212,175,55,0.08)",
+              }}
+            >
+              {canReorder && <span className="w-8" />}
+              <span>Project</span>
+              <span className="hidden md:block">Category</span>
+              <span className="hidden sm:block">Featured</span>
+              <span>Status</span>
+              <span>Actions</span>
+            </div>
+
+            <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+              <AnimatePresence>
+                {filtered.map((p, i) =>
+                  canReorder ? (
+                    <DraggableProjectRow
+                      key={p.id}
+                      project={p}
+                      index={i}
+                      onReorder={handleReorder}
+                      onEdit={() => openEdit(p)}
+                      onDelete={() => setConfirmDelete(p.id)}
+                      onToggleStatus={() => toggleStatus(p)}
+                      onToggleFeatured={() => toggleFeatured(p)}
+                    />
+                  ) : (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      transition={{ duration: 0.25, delay: i * 0.03 }}
+                      layout
+                      className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3.5 items-center transition-colors duration-150"
+                      style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,175,55,0.03)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0" style={{ border: `1px solid ${p.color}25` }}>
+                          <img src={p.image ?? "https://placehold.co/100/1a1a1a/666?text=+"} alt={p.title} className="w-full h-full object-cover opacity-60" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.85rem" }}>{p.title}</div>
+                          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif" }}>{p.client}</div>
+                        </div>
+                      </div>
+                      <span className="hidden md:block px-2.5 py-1 rounded-lg text-xs" style={{ background: `${p.color}15`, color: p.color, fontFamily: "'Fira Code', monospace", whiteSpace: "nowrap" }}>
+                        {p.category}
+                      </span>
+                      <button
+                        className="hidden sm:flex w-8 h-8 items-center justify-center rounded-lg transition-colors duration-150"
+                        onClick={() => toggleFeatured(p)}
+                        style={{ background: "transparent", border: "none", cursor: "pointer", color: p.featured ? "#D4AF37" : "rgba(255,255,255,0.2)" }}
+                      >
+                        {p.featured ? <Star size={14} fill="#D4AF37" /> : <StarOff size={14} />}
+                      </button>
+                      <button
+                        onClick={() => toggleStatus(p)}
+                        className="px-2.5 py-1 rounded-full text-xs transition-all duration-150 flex items-center gap-1.5"
+                        style={{
+                          background: p.status === "published" ? "rgba(16,185,129,0.12)" : "rgba(156,163,175,0.1)",
+                          border: p.status === "published" ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(156,163,175,0.18)",
+                          color: p.status === "published" ? "#10b981" : "#9ca3af",
+                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontWeight: 500,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {p.status === "published" ? <Eye size={10} /> : <EyeOff size={10} />}
+                        {p.status}
+                      </button>
+                      <div className="flex gap-1.5">
+                        <ActionBtn icon={Pencil} color="#D4AF37" title="Edit" onClick={() => openEdit(p)} />
+                        <ActionBtn icon={Trash2} color="#f87171" title="Delete" onClick={() => setConfirmDelete(p.id)} />
+                      </div>
+                    </motion.div>
+                  )
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </DndProvider>
       )}
 
       {/* Project modal */}
@@ -372,6 +418,174 @@ export function AdminProjects() {
 }
 
 /* ── Sub-components ── */
+
+interface DraggableItem {
+  id: string | number;
+  index: number;
+}
+
+function DraggableProjectCard({
+  project,
+  index,
+  onReorder,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  onToggleFeatured,
+}: {
+  project: Project;
+  index: number;
+  onReorder: (dragIndex: number, dropIndex: number) => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onToggleStatus: () => void;
+  onToggleFeatured: () => void;
+}) {
+  const [{ isDragging }, drag, preview] = useDrag<DraggableItem>({
+    type: PROJECT_ITEM_TYPE,
+    item: { id: project.id, index },
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+  });
+
+  const [, drop] = useDrop<DraggableItem>({
+    accept: PROJECT_ITEM_TYPE,
+    drop: (item) => {
+      if (item.index !== index) onReorder(item.index, index);
+    },
+  });
+
+  return (
+    <div
+      ref={(node) => preview(drop(node))}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+      className="relative"
+    >
+      <div
+        ref={drag}
+        className="absolute top-2.5 left-2.5 z-10 w-7 h-7 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing"
+        style={{
+          background: "rgba(212,175,55,0.15)",
+          border: "1px solid rgba(212,175,55,0.35)",
+          color: "#D4AF37",
+        }}
+        title="Drag to reorder"
+      >
+        <GripVertical size={14} />
+      </div>
+      <div style={{ paddingLeft: "36px" }}>
+        <ProjectCard
+          project={project}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onToggleStatus={onToggleStatus}
+          onToggleFeatured={onToggleFeatured}
+        />
+      </div>
+    </div>
+  );
+}
+
+function DraggableProjectRow({
+  project: p,
+  index,
+  onReorder,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  onToggleFeatured,
+}: {
+  project: Project;
+  index: number;
+  onReorder: (dragIndex: number, dropIndex: number) => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onToggleStatus: () => void;
+  onToggleFeatured: () => void;
+}) {
+  const [{ isDragging }, drag, preview] = useDrag<DraggableItem>({
+    type: PROJECT_ITEM_TYPE,
+    item: { id: p.id, index },
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+  });
+
+  const [, drop] = useDrop<DraggableItem>({
+    accept: PROJECT_ITEM_TYPE,
+    drop: (item) => {
+      if (item.index !== index) onReorder(item.index, index);
+    },
+  });
+
+  return (
+    <motion.div
+      ref={(node) => preview(drop(node))}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 10 }}
+      transition={{ duration: 0.25, delay: index * 0.03 }}
+      layout
+      className="grid gap-4 px-5 py-3.5 items-center transition-colors duration-150"
+      style={{
+        gridTemplateColumns: "auto 1fr auto auto auto auto",
+        borderColor: "rgba(255,255,255,0.04)",
+        opacity: isDragging ? 0.5 : 1,
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,175,55,0.03)")}
+      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+    >
+      <div
+        ref={drag}
+        className="w-8 h-8 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing flex-shrink-0"
+        style={{
+          background: "rgba(212,175,55,0.12)",
+          border: "1px solid rgba(212,175,55,0.25)",
+          color: "#D4AF37",
+        }}
+        title="Drag to reorder"
+      >
+        <GripVertical size={14} />
+      </div>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0" style={{ border: `1px solid ${p.color}25` }}>
+          <img src={p.image ?? "https://placehold.co/100/1a1a1a/666?text=+"} alt={p.title} className="w-full h-full object-cover opacity-60" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.85rem" }}>{p.title}</div>
+          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif" }}>{p.client}</div>
+        </div>
+      </div>
+      <span className="hidden md:block px-2.5 py-1 rounded-lg text-xs" style={{ background: `${p.color}15`, color: p.color, fontFamily: "'Fira Code', monospace", whiteSpace: "nowrap" }}>
+        {p.category}
+      </span>
+      <button
+        className="hidden sm:flex w-8 h-8 items-center justify-center rounded-lg transition-colors duration-150"
+        onClick={onToggleFeatured}
+        style={{ background: "transparent", border: "none", cursor: "pointer", color: p.featured ? "#D4AF37" : "rgba(255,255,255,0.2)" }}
+      >
+        {p.featured ? <Star size={14} fill="#D4AF37" /> : <StarOff size={14} />}
+      </button>
+      <button
+        onClick={onToggleStatus}
+        className="px-2.5 py-1 rounded-full text-xs transition-all duration-150 flex items-center gap-1.5"
+        style={{
+          background: p.status === "published" ? "rgba(16,185,129,0.12)" : "rgba(156,163,175,0.1)",
+          border: p.status === "published" ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(156,163,175,0.18)",
+          color: p.status === "published" ? "#10b981" : "#9ca3af",
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontWeight: 500,
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {p.status === "published" ? <Eye size={10} /> : <EyeOff size={10} />}
+        {p.status}
+      </button>
+      <div className="flex gap-1.5">
+        <ActionBtn icon={Pencil} color="#D4AF37" title="Edit" onClick={onEdit} />
+        <ActionBtn icon={Trash2} color="#f87171" title="Delete" onClick={onDelete} />
+      </div>
+    </motion.div>
+  );
+}
 
 function ProjectCard({
   project: p,

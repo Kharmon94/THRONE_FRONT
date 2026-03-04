@@ -96,6 +96,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       if (rest.color !== undefined) payload.color = rest.color;
       if (rest.client !== undefined) payload.client = rest.client;
       if (rest.year !== undefined) payload.year = rest.year;
+      if (rest.position !== undefined) payload.position = rest.position;
       if (imageUrl !== undefined) payload.image_url = imageUrl;
       await api.updateProject(id, Object.keys(payload).length > 0 ? payload : {});
     }
