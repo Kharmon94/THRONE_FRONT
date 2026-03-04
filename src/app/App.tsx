@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { MotionConfig } from "motion/react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ProjectsProvider } from "./context/ProjectsContext";
 import { PublicSite } from "./pages/PublicSite";
@@ -84,10 +85,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ProjectsProvider>
-        <AppContent />
-      </ProjectsProvider>
-    </AuthProvider>
+    <MotionConfig reducedMotion="user">
+      <AuthProvider>
+        <ProjectsProvider>
+          <AppContent />
+        </ProjectsProvider>
+      </AuthProvider>
+    </MotionConfig>
   );
 }

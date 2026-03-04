@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ThroneIcon } from "../ThroneIcon";
+import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type { Page } from "../../App";
 
 export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
@@ -12,6 +13,7 @@ export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const reduce = useReduceAnimations();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +49,14 @@ export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
           className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full"
           style={{
             background: "radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)",
-            filter: "blur(60px)",
+            filter: reduce ? "blur(30px)" : "blur(60px)",
           }}
         />
         <div
           className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full"
           style={{
             background: "radial-gradient(circle, rgba(184,150,46,0.06) 0%, transparent 70%)",
-            filter: "blur(60px)",
+            filter: reduce ? "blur(30px)" : "blur(60px)",
           }}
         />
         {/* Grid */}
@@ -68,17 +70,17 @@ export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.97 }}
+        initial={{ opacity: 0, y: reduce ? 0 : 30, scale: reduce ? 1 : 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: reduce ? 0.25 : 0.5, ease: "easeOut" }}
         className="w-full max-w-sm relative"
       >
         <div
           className="rounded-2xl p-8"
           style={{
             background: "rgba(255,255,255,0.03)",
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
+            backdropFilter: reduce ? "blur(12px)" : "blur(24px)",
+            WebkitBackdropFilter: reduce ? "blur(12px)" : "blur(24px)",
             border: "1px solid rgba(212,175,55,0.2)",
             boxShadow: "0 25px 60px rgba(0,0,0,0.7), 0 0 80px rgba(212,175,55,0.06)",
           }}

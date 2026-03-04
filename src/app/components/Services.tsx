@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { Code2, Smartphone, Palette, Cloud, Brain, Megaphone, ArrowRight } from "lucide-react";
 import { GlassCard } from "./GlassCard";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 const services = [
   {
@@ -61,6 +62,7 @@ const services = [
 ];
 
 export function Services() {
+  const reduce = useReduceAnimations();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
@@ -76,7 +78,7 @@ export function Services() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: reduce ? 0.3 : 0.6 }}
           className="text-center mb-16"
         >
           <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
@@ -112,7 +114,10 @@ export function Services() {
               key={title}
               initial={{ opacity: 0, y: 40 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.55, delay: 0.15 + i * 0.1 }}
+              transition={{
+                duration: reduce ? 0.3 : 0.55,
+                delay: reduce ? Math.min(0.1 + i * 0.03, 0.35) : 0.15 + i * 0.1,
+              }}
             >
               <GlassCard
                 tilt

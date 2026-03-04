@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ThroneIcon } from "../ThroneIcon";
+import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type { Page, AdminSubPage } from "../../App";
 
 const navItems: { key: AdminSubPage; label: string; icon: typeof LayoutDashboard }[] = [
@@ -28,6 +29,7 @@ interface AdminShellProps {
 
 export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderChild }: AdminShellProps) {
   const { logout } = useAuth();
+  const reduce = useReduceAnimations();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
@@ -183,7 +185,8 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
         className="hidden lg:flex flex-col w-60 flex-shrink-0 sticky top-0 h-screen"
         style={{
           background: "rgba(255,255,255,0.02)",
-          backdropFilter: "blur(20px)",
+          backdropFilter: reduce ? "blur(10px)" : "blur(20px)",
+          WebkitBackdropFilter: reduce ? "blur(10px)" : "blur(20px)",
           borderRight: "1px solid rgba(212,175,55,0.1)",
         }}
       >
@@ -199,7 +202,7 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 lg:hidden"
-              style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+              style={{ background: "rgba(0,0,0,0.7)", backdropFilter: reduce ? "blur(2px)" : "blur(4px)", WebkitBackdropFilter: reduce ? "blur(2px)" : "blur(4px)" }}
               onClick={() => setSidebarOpen(false)}
             />
             <motion.aside
@@ -226,7 +229,8 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
           className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between"
           style={{
             background: "rgba(6,5,4,0.9)",
-            backdropFilter: "blur(20px)",
+            backdropFilter: reduce ? "blur(10px)" : "blur(20px)",
+            WebkitBackdropFilter: reduce ? "blur(10px)" : "blur(20px)",
             borderBottom: "1px solid rgba(212,175,55,0.08)",
           }}
         >

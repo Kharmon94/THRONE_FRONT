@@ -1,5 +1,6 @@
 import { useRef, useState, ReactNode } from "react";
 import { motion } from "motion/react";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 interface GlassCardProps {
   children: ReactNode;
@@ -11,13 +12,14 @@ interface GlassCardProps {
 }
 
 export function GlassCard({ children, className = "", tilt = false, glow, style, onClick }: GlassCardProps) {
+  const reduce = useReduceAnimations();
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
   const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!tilt || !cardRef.current) return;
+    if (!tilt || reduce || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -42,13 +44,13 @@ export function GlassCard({ children, className = "", tilt = false, glow, style,
       onClick={onClick}
       className={`relative rounded-2xl overflow-hidden ${className}`}
       style={{
-        transform: tilt
+        transform: tilt && !reduce
           ? `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
           : undefined,
-        transition: tilt ? "transform 0.12s ease-out" : undefined,
+        transition: tilt && !reduce ? "transform 0.12s ease-out" : undefined,
         background: "rgba(255, 255, 255, 0.03)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
+        backdropFilter: reduce ? "blur(10px)" : "blur(20px)",
+        WebkitBackdropFilter: reduce ? "blur(10px)" : "blur(20px)",
         border: "1px solid rgba(212, 175, 55, 0.12)",
         boxShadow:
           "0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(212, 175, 55, 0.08)",

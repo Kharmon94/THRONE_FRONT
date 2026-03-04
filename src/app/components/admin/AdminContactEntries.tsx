@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, Trash2, Mail } from "lucide-react";
 import { api } from "../../../services/api";
+import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type { ContactEntry } from "../../types";
 
 export function AdminContactEntries() {
+  const reduce = useReduceAnimations();
   const [entries, setEntries] = useState<ContactEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -55,7 +57,7 @@ export function AdminContactEntries() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: reduce ? 0.25 : 0.4 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
@@ -83,7 +85,7 @@ export function AdminContactEntries() {
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
+        transition={{ duration: reduce ? 0.25 : 0.4, delay: reduce ? 0.02 : 0.05 }}
         className="flex flex-col sm:flex-row gap-3"
       >
         <div className="relative flex-1">
@@ -147,7 +149,7 @@ export function AdminContactEntries() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.25, delay: i * 0.03 }}
+                  transition={{ duration: reduce ? 0.2 : 0.25, delay: reduce ? Math.min(i * 0.015, 0.2) : i * 0.03 }}
                   layout
                   className="px-6 py-5 flex flex-col sm:flex-row sm:items-start gap-4 group transition-colors duration-150"
                   style={{ borderColor: "rgba(255,255,255,0.04)" }}
@@ -214,7 +216,7 @@ export function AdminContactEntries() {
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ duration: 0.18 }}
+              transition={{ duration: reduce ? 0.12 : 0.18 }}
               className="relative rounded-2xl p-7 w-full max-w-sm text-center"
               style={{
                 background: "#0d0b08",

@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowDown, ArrowRight, Zap, Globe, Shield } from "lucide-react";
 import { ThroneIcon } from "./ThroneIcon";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 const pillars = [
   { icon: Zap,    label: "High Performance" },
@@ -11,6 +12,8 @@ const pillars = [
 const coreStack = ["React", "Vite", "TypeScript", "Rails", "PostgreSQL", "Tailwind", "AWS"];
 
 export function Hero() {
+  const reduce = useReduceAnimations();
+  const d = (x: number, y: number) => (reduce ? y : x);
   return (
     <section id="hero" className="min-h-screen flex items-center justify-center px-4 pt-28 pb-16 relative">
       <div className="max-w-6xl w-full mx-auto flex flex-col items-center text-center">
@@ -20,7 +23,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: d(0.6, 0.3), delay: d(0.2, 0.05) }}
           >
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
@@ -40,7 +43,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+            transition={{ duration: d(0.7, 0.35), delay: d(0.3, 0.08) }}
             className="space-y-3"
           >
             <h1
@@ -85,7 +88,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={{ duration: d(0.6, 0.3), delay: d(0.5, 0.12) }}
             className="flex flex-wrap justify-center gap-4"
           >
             <button
@@ -137,7 +140,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.65 }}
+            transition={{ duration: d(0.6, 0.3), delay: d(0.65, 0.15) }}
             className="flex flex-wrap justify-center gap-3"
           >
             {pillars.map(({ icon: Icon, label }) => (
@@ -161,7 +164,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.75 }}
+            transition={{ duration: d(0.6, 0.3), delay: d(0.75, 0.18) }}
             className="flex flex-wrap justify-center gap-2"
           >
             {coreStack.map((t) => (
@@ -185,8 +188,8 @@ export function Hero() {
       {/* Scroll indicator */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        animate={reduce ? undefined : { y: [0, 8, 0] }}
+        transition={reduce ? undefined : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
         <span style={{ color: "rgba(212,175,55,0.3)", fontSize: "0.7rem", fontFamily: "'Fira Code', monospace" }}>scroll</span>
         <ArrowDown size={14} style={{ color: "rgba(212,175,55,0.3)" }} />

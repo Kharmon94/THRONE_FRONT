@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Plus, Trash2, Upload, Link } from "lucide-react";
 import { Project } from "../../context/ProjectsContext";
+import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 
 type ImageInputMode = "url" | "upload";
 
@@ -49,6 +50,7 @@ const inputStyle: React.CSSProperties = {
 };
 
 export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalProps) {
+  const reduce = useReduceAnimations();
   const [form, setForm] = useState<Omit<Project, "id">>(empty);
   const [tagInput, setTagInput] = useState("");
   const [saving, setSaving] = useState(false);
@@ -119,10 +121,10 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: reduce ? 1 : 0.95, y: reduce ? 0 : 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
+            exit={{ opacity: 0, scale: reduce ? 1 : 0.95, y: reduce ? 0 : 20 }}
+            transition={{ duration: reduce ? 0.12 : 0.22, ease: "easeOut" }}
             className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl"
             style={{
               background: "#0d0b08",

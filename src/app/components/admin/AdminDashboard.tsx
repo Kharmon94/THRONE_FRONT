@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { FolderKanban, Eye, Star, FileX, ArrowRight, TrendingUp, Clock, Mail } from "lucide-react";
 import { useProjects } from "../../context/ProjectsContext";
 import { api } from "../../../services/api";
+import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 
 export function AdminDashboard({
   onNavigateToProjects,
@@ -11,6 +12,7 @@ export function AdminDashboard({
   onNavigateToProjects: () => void;
   onNavigateToContactEntries: () => void;
 }) {
+  const reduce = useReduceAnimations();
   const { projects } = useProjects();
   const [contactCount, setContactCount] = useState<number>(0);
 
@@ -37,7 +39,7 @@ export function AdminDashboard({
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Page header */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0.25 : 0.4 }}>
         <h1
           style={{
             fontFamily: "'Space Grotesk', sans-serif",
@@ -64,7 +66,7 @@ export function AdminDashboard({
             key={label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.05 * i }}
+            transition={{ duration: reduce ? 0.25 : 0.4, delay: reduce ? Math.min(0.02 * i, 0.15) : 0.05 * i }}
           >
             <div
               role={onClick ? "button" : undefined}
@@ -84,7 +86,7 @@ export function AdminDashboard({
               {/* Glow */}
               <div
                 className="absolute top-0 right-0 w-24 h-24 rounded-full pointer-events-none"
-                style={{ background: `radial-gradient(circle, ${color}15 0%, transparent 70%)`, filter: "blur(20px)", transform: "translate(30%, -30%)" }}
+                style={{ background: `radial-gradient(circle, ${color}15 0%, transparent 70%)`, filter: reduce ? "blur(10px)" : "blur(20px)", transform: "translate(30%, -30%)" }}
               />
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
@@ -124,7 +126,7 @@ export function AdminDashboard({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
+          transition={{ duration: reduce ? 0.25 : 0.4, delay: reduce ? 0.08 : 0.2 }}
           className="lg:col-span-2"
         >
           <div
@@ -216,7 +218,7 @@ export function AdminDashboard({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.25 }}
+          transition={{ duration: reduce ? 0.25 : 0.4, delay: reduce ? 0.1 : 0.25 }}
           className="space-y-5"
         >
           {/* Categories */}

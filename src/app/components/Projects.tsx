@@ -3,10 +3,12 @@ import { motion, useInView } from "motion/react";
 import { ExternalLink, ArrowUpRight } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { useProjects } from "../context/ProjectsContext";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 const ALL = "All";
 
 export function Projects() {
+  const reduce = useReduceAnimations();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const { projects } = useProjects();
@@ -24,7 +26,7 @@ export function Projects() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: reduce ? 0.3 : 0.6 }}
           className="text-center mb-12"
         >
           <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
@@ -57,7 +59,7 @@ export function Projects() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: reduce ? 0.3 : 0.5, delay: reduce ? 0.05 : 0.2 }}
           className="flex justify-center gap-2 mb-12 flex-wrap"
         >
           {categories.map((cat) => (
@@ -98,7 +100,10 @@ export function Projects() {
                 key={project.id}
                 initial={{ opacity: 0, y: 40 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.55, delay: 0.25 + i * 0.1 }}
+                transition={{
+                  duration: reduce ? 0.3 : 0.55,
+                  delay: reduce ? Math.min(0.1 + i * 0.03, 0.35) : 0.25 + i * 0.1,
+                }}
                 layout
               >
                 <GlassCard
@@ -133,7 +138,7 @@ export function Projects() {
                             color: "#D4AF37",
                             fontFamily: "'Space Grotesk', sans-serif",
                             fontWeight: 500,
-                            backdropFilter: "blur(10px)",
+                            backdropFilter: reduce ? "blur(6px)" : "blur(10px)",
                           }}
                         >
                           ★ Featured
@@ -151,7 +156,7 @@ export function Projects() {
                         style={{
                           background: "rgba(6,5,4,0.8)",
                           border: "1px solid rgba(255,255,255,0.1)",
-                          backdropFilter: "blur(10px)",
+                          backdropFilter: reduce ? "blur(6px)" : "blur(10px)",
                           color: "rgba(255,255,255,0.7)",
                         }}
                       >

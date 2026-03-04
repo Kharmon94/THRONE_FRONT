@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { Target, Users, Trophy, Heart } from "lucide-react";
 import { GlassCard } from "./GlassCard";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 const values = [
   {
@@ -41,7 +42,7 @@ export function About() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: reduce ? 0.3 : 0.6 }}
           className="text-center mb-16"
         >
           <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
@@ -69,7 +70,7 @@ export function About() {
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            transition={{ duration: reduce ? 0.35 : 0.7, delay: reduce ? 0.05 : 0.2 }}
           >
             <GlassCard tilt glow="rgba(212,175,55,0.1)" className="p-8 h-full">
               <div
@@ -113,7 +114,10 @@ export function About() {
               key={title}
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
+              transition={{
+                duration: reduce ? 0.3 : 0.5,
+                delay: reduce ? Math.min(0.15 + i * 0.04, 0.35) : 0.5 + i * 0.1,
+              }}
             >
               <GlassCard
                 tilt

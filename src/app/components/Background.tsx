@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 const orbs = [
   { x: "8%",  y: "18%", size: 600, color: "rgba(212, 175, 55, 0.10)", delay: 0 },
@@ -9,6 +10,7 @@ const orbs = [
 ];
 
 export function Background() {
+  const reduce = useReduceAnimations();
   return (
     <div
       className="fixed inset-0 overflow-hidden pointer-events-none"
@@ -40,19 +42,27 @@ export function Background() {
             height: orb.size,
             background: `radial-gradient(circle, ${orb.color} 0%, transparent 70%)`,
             transform: "translate(-50%, -50%)",
-            filter: "blur(50px)",
+            filter: reduce ? "blur(24px)" : "blur(50px)",
           }}
-          animate={{
-            scale: [1, 1.15, 0.92, 1.08, 1],
-            x: [0, 25, -18, 12, 0],
-            y: [0, -20, 18, -8, 0],
-          }}
-          transition={{
-            duration: 14 + i * 2,
-            delay: orb.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={
+            reduce
+              ? undefined
+              : {
+                  scale: [1, 1.15, 0.92, 1.08, 1],
+                  x: [0, 25, -18, 12, 0],
+                  y: [0, -20, 18, -8, 0],
+                }
+          }
+          transition={
+            reduce
+              ? undefined
+              : {
+                  duration: 14 + i * 2,
+                  delay: orb.delay,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }
+          }
         />
       ))}
 

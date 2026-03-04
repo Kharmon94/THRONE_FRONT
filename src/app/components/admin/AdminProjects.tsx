@@ -8,12 +8,14 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useProjects, type Project } from "../../context/ProjectsContext";
 import { ProjectModal } from "./ProjectModal";
+import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 
 const PROJECT_ITEM_TYPE = "PROJECT_ITEM";
 
 type View = "grid" | "list";
 
 export function AdminProjects() {
+  const reduce = useReduceAnimations();
   const { projects, addProject, updateProject, deleteProject, reorderProjects } = useProjects();
   const [modalOpen, setModalOpen]   = useState(false);
   const [editing, setEditing]       = useState<Project | null>(null);
@@ -69,7 +71,7 @@ export function AdminProjects() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: reduce ? 0.25 : 0.4 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
@@ -121,7 +123,7 @@ export function AdminProjects() {
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
+        transition={{ duration: reduce ? 0.25 : 0.4, delay: reduce ? 0.02 : 0.05 }}
         className="flex flex-col sm:flex-row gap-3"
       >
         {/* Search */}
@@ -222,7 +224,7 @@ export function AdminProjects() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: i * 0.04 }}
+                  transition={{ duration: reduce ? 0.2 : 0.3, delay: reduce ? Math.min(i * 0.02, 0.2) : i * 0.04 }}
                   layout
                 >
                   {canReorder ? (
@@ -294,7 +296,7 @@ export function AdminProjects() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 10 }}
-                      transition={{ duration: 0.25, delay: i * 0.03 }}
+                      transition={{ duration: reduce ? 0.2 : 0.25, delay: reduce ? Math.min(i * 0.015, 0.2) : i * 0.03 }}
                       layout
                       className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3.5 items-center transition-colors duration-150"
                       style={{ borderColor: "rgba(255,255,255,0.04)" }}

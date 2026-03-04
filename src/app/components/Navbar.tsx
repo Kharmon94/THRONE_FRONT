@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X } from "lucide-react";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 import type { Page } from "../App";
 
 const navLinks = ["About", "Services", "Projects", "Contact"];
 
 export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
+  const reduce = useReduceAnimations();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -22,17 +24,17 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
 
   return (
     <motion.nav
-      initial={{ y: -80, opacity: 0 }}
+      initial={{ y: reduce ? 0 : -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: reduce ? 0.25 : 0.6, ease: "easeOut" }}
       className="fixed top-0 left-0 right-0 z-50 px-4 py-4"
     >
       <div
         className="max-w-6xl mx-auto rounded-2xl px-6 py-3 flex items-center justify-between transition-all duration-500"
         style={{
           background: scrolled ? "rgba(6, 5, 4, 0.92)" : "rgba(255,255,255,0.02)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
+          backdropFilter: reduce ? "blur(12px)" : "blur(24px)",
+          WebkitBackdropFilter: reduce ? "blur(12px)" : "blur(24px)",
           border: scrolled
             ? "1px solid rgba(212, 175, 55, 0.25)"
             : "1px solid rgba(255,255,255,0.05)",
@@ -45,8 +47,8 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
         <motion.button
           className="flex items-center cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={reduce ? undefined : { scale: 1.02 }}
+          whileTap={reduce ? undefined : { scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
           <motion.div
@@ -61,9 +63,9 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
               backgroundClip: "text",
               textTransform: "uppercase",
             }}
-            initial={{ opacity: 0, letterSpacing: "-0.04em" }}
-            animate={{ opacity: 1, letterSpacing: "0.06em" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, letterSpacing: "-0.04em" }}
+            animate={reduce ? { opacity: 1 } : { opacity: 1, letterSpacing: "0.06em" }}
+            transition={{ duration: reduce ? 0.25 : 0.5, ease: "easeOut" }}
           >
             Throne Tech
           </motion.div>
@@ -132,7 +134,8 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
             className="max-w-6xl mx-auto mt-2 rounded-2xl overflow-hidden"
             style={{
               background: "rgba(6, 5, 4, 0.97)",
-              backdropFilter: "blur(20px)",
+              backdropFilter: reduce ? "blur(8px)" : "blur(20px)",
+              WebkitBackdropFilter: reduce ? "blur(8px)" : "blur(20px)",
               border: "1px solid rgba(212, 175, 55, 0.2)",
             }}
           >

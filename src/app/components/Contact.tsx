@@ -4,6 +4,7 @@ import { Mail, Send, MapPin, CheckCircle, Clock } from "lucide-react";
 import { api } from "../../services/api";
 import { GlassCard } from "./GlassCard";
 import { ThroneIcon } from "./ThroneIcon";
+import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 const contactInfo = [
   { icon: Mail,   label: "Email Us",  value: "thronetechnology@gmail.com", color: "#D4AF37", href: "mailto:thronetechnology@gmail.com" },
@@ -14,6 +15,7 @@ const contactInfo = [
 const budgets = ["< $10k", "$10k–$25k", "$25k–$75k", "$75k–$150k", "$150k+"];
 
 export function Contact() {
+  const reduce = useReduceAnimations();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const [form, setForm] = useState({ name: "", email: "", company: "", budget: "", message: "" });
@@ -72,7 +74,7 @@ export function Contact() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: reduce ? 0.3 : 0.6 }}
           className="text-center mb-16"
         >
           <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
@@ -100,7 +102,7 @@ export function Contact() {
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            transition={{ duration: reduce ? 0.35 : 0.7, delay: reduce ? 0.05 : 0.2 }}
             className="lg:col-span-2 space-y-5"
           >
             <GlassCard className="p-7">
@@ -164,7 +166,7 @@ export function Contact() {
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.35 }}
+            transition={{ duration: reduce ? 0.35 : 0.7, delay: reduce ? 0.1 : 0.35 }}
             className="lg:col-span-3"
           >
             <GlassCard className="p-8 h-full">
@@ -276,8 +278,8 @@ export function Contact() {
                     cursor: sending ? "wait" : "pointer",
                     letterSpacing: "0.02em",
                   }}
-                  whileHover={!sending && !sent ? { scale: 1.01 } : {}}
-                  whileTap={!sending && !sent ? { scale: 0.99 } : {}}
+                  whileHover={!reduce && !sending && !sent ? { scale: 1.01 } : undefined}
+                  whileTap={!reduce && !sending && !sent ? { scale: 0.99 } : undefined}
                 >
                   {sent ? (
                     <><CheckCircle size={16} /> Message Received — We'll be in touch!</>
