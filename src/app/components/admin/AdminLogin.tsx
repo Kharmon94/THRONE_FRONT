@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ThroneIcon } from "../ThroneIcon";
 import type { Page } from "../../App";
 
-const DEFAULT_ADMIN_EMAIL = "admin@throne.local";
-
 export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
   const { login } = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +18,7 @@ export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
     setError("");
     setLoading(true);
     try {
-      const ok = await login(DEFAULT_ADMIN_EMAIL, password);
+      const ok = await login(email, password);
       if (ok) {
         onNavigate("admin");
       } else {
@@ -140,7 +139,63 @@ export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
                   marginBottom: "8px",
                 }}
               >
-                Admin Password
+                Email
+              </label>
+              <div className="relative">
+                <div
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                  style={{ color: "rgba(212,175,55,0.4)" }}
+                >
+                  <Mail size={15} />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@example.com"
+                  required
+                  autoComplete="email"
+                  style={{
+                    width: "100%",
+                    background: "rgba(255,255,255,0.04)",
+                    border: error
+                      ? "1px solid rgba(239,68,68,0.5)"
+                      : "1px solid rgba(212,175,55,0.15)",
+                    borderRadius: "12px",
+                    color: "white",
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: "0.9rem",
+                    padding: "12px 44px",
+                    outline: "none",
+                    transition: "all 0.2s",
+                  }}
+                  onFocus={(e) => {
+                    if (!error) {
+                      (e.target as HTMLInputElement).style.borderColor = "rgba(212,175,55,0.45)";
+                      (e.target as HTMLInputElement).style.boxShadow = "0 0 0 3px rgba(212,175,55,0.08)";
+                    }
+                  }}
+                  onBlur={(e) => {
+                    if (!error) {
+                      (e.target as HTMLInputElement).style.borderColor = "rgba(212,175,55,0.15)";
+                      (e.target as HTMLInputElement).style.boxShadow = "none";
+                    }
+                  }}
+                />
+              </div>
+            </div>
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  color: "rgba(255,255,255,0.35)",
+                  fontSize: "0.7rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  marginBottom: "8px",
+                }}
+              >
+                Password
               </label>
               <div className="relative">
                 <div
