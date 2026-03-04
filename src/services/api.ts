@@ -1,7 +1,10 @@
 import type { User, AuthResponse, Project, ContactEntry } from "../types";
 
 const TOKEN_KEY = "throne_token";
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// Same-origin when served with API (empty); or VITE_API_URL for separate deployments; localhost in dev
+const BASE_URL =
+  (import.meta.env.VITE_API_URL && String(import.meta.env.VITE_API_URL).trim()) ||
+  (import.meta.env.DEV ? "http://localhost:3000" : "");
 
 async function request<T>(
   path: string,
