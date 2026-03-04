@@ -50,39 +50,22 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="flex items-baseline gap-2"
-            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            initial={{ opacity: 0, letterSpacing: "-0.08em" }}
-            animate={{ opacity: 1, letterSpacing: "0em" }}
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 700,
+              fontSize: "1.15rem",
+              letterSpacing: "0.06em",
+              background: "linear-gradient(135deg, #F0D060, #D4AF37)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              textTransform: "uppercase",
+            }}
+            initial={{ opacity: 0, letterSpacing: "-0.04em" }}
+            animate={{ opacity: 1, letterSpacing: "0.06em" }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <span
-              style={{
-                fontWeight: 700,
-                fontSize: "1.15rem",
-                letterSpacing: "0.01em",
-                background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Throne
-            </span>
-            <motion.span
-              style={{
-                fontWeight: 500,
-                fontSize: "1.05rem",
-                letterSpacing: "0.06em",
-                color: "rgba(212, 175, 55, 0.75)",
-                textTransform: "uppercase",
-              }}
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
-            >
-              Tech
-            </motion.span>
+            Throne Tech
           </motion.div>
         </motion.button>
 
