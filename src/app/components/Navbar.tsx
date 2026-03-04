@@ -41,43 +41,50 @@ export function Navbar({ onNavigate }: { onNavigate: (p: Page) => void }) {
             : "none",
         }}
       >
-        {/* Logo - words only */}
-        <button
+        {/* Logo - Throne Tech */}
+        <motion.button
           className="flex items-center cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          <div
-            className="flex items-baseline gap-1.5"
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-            }}
+          <motion.div
+            className="flex items-baseline gap-2"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            initial={{ opacity: 0, letterSpacing: "-0.08em" }}
+            animate={{ opacity: 1, letterSpacing: "0em" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
             <span
               style={{
                 fontWeight: 700,
-                fontSize: "1.1rem",
-                letterSpacing: "-0.02em",
+                fontSize: "1.15rem",
+                letterSpacing: "0.01em",
                 background: "linear-gradient(135deg, #F0D060, #D4AF37)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
               }}
             >
-              THRONE
+              Throne
             </span>
-            <span
+            <motion.span
               style={{
                 fontWeight: 500,
-                fontSize: "0.95rem",
-                letterSpacing: "0.08em",
-                color: "rgba(212, 175, 55, 0.7)",
+                fontSize: "1.05rem",
+                letterSpacing: "0.06em",
+                color: "rgba(212, 175, 55, 0.75)",
                 textTransform: "uppercase",
               }}
+              initial={{ opacity: 0, x: -4 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
             >
-              Technology
-            </span>
-          </div>
-        </button>
+              Tech
+            </motion.span>
+          </motion.div>
+        </motion.button>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-1">
