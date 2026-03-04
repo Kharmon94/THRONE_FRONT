@@ -34,6 +34,7 @@ const values = [
 export function About() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
+  const reduce = useReduceAnimations();
 
   return (
     <section id="about" className="py-28 px-4" ref={ref}>
