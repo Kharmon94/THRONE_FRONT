@@ -33,7 +33,7 @@ const services = [
     icon: Cloud,
     title: "Cloud & DevOps",
     tagline: "Infinite Scale",
-    desc: "AWS & GCP architecture, Kubernetes, CI/CD pipelines, and infrastructure-as-code for zero-downtime deployments.",
+    desc: "AWS & GCP architecture, Kubernetes, Docker, CI/CD pipelines, and infrastructure-as-code for zero-downtime deployments.",
     color: "#C0C0C0",
     featured: false,
   },
