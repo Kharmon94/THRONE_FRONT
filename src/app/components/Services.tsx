@@ -60,6 +60,10 @@ export function Services() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
+  const scrollToBooking = () => {
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <section id="services" className="py-28 px-4 relative" ref={ref}>
       <div
@@ -167,13 +171,15 @@ export function Services() {
                   {desc}
                 </p>
 
-                {/* CTA row */}
-                <div
-                  className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                {/* CTA row — scrolls to booking/contact */}
+                <button
+                  type="button"
+                  onClick={scrollToBooking}
+                  className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer bg-transparent border-0 p-0"
                   style={{ color, fontSize: "0.8rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500 }}
                 >
                   Learn more <ArrowRight size={13} />
-                </div>
+                </button>
               </GlassCard>
             </motion.div>
           ))}

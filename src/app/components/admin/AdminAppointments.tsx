@@ -9,12 +9,14 @@ import {
   Mail,
   Trash2,
   Save,
+  Plus,
 } from "lucide-react";
 import { api } from "../../../services/api";
 import { MonthCalendar } from "../MonthCalendar";
 import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type {
   Appointment,
+  AppointmentDateOverride,
   AppointmentSettings,
   AppointmentStatus,
   WeekdayKey,
@@ -96,6 +98,23 @@ export function AdminAppointments() {
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsError, setSettingsError] = useState("");
 
+  const [overrides, setOverrides] = useState<AppointmentDateOverride[]>([]);
+  const [overridesLoading, setOverridesLoading] = useState(false);
+  const [overridesError, setOverridesError] = useState("");
+  const [overrideBusyId, setOverrideBusyId] = useState<number | "new" | null>(null);
+  const [newOverride, setNewOverride] = useState({
+    date: "",
+    enabled: true,
+    start: "10:00",
+    end: "16:00",
+  });
+
+  const overrideRange = useMemo(() => {
+    const from = new Date(month.getFullYear(), month.getMonth(), 1);
+    const to = new Date(month.getFullYear(), month.getMonth() + 3, 0);
+    return { from: localDateKey(from), to: localDateKey(to) };
+  }, [month]);
+
   const loadAppointments = useCallback(async (m: Date) => {
     setLoading(true);
     setActionError("");
@@ -135,9 +154,26 @@ export function AdminAppointments() {
     }
   }, []);
 
+  const loadOverrides = useCallback(async () => {
+    setOverridesLoading(true);
+    setOverridesError("");
+    try {
+      const list = await api.getAppointmentDateOverrides(overrideRange.from, overrideRange.to);
+      setOverrides(list);
+    } catch (err) {
+      setOverrides([]);
+      setOverridesError(err instanceof Error ? err.message : "Failed to load date overrides.");
+    } finally {
+      setOverridesLoading(false);
+    }
+  }, [overrideRange.from, overrideRange.to]);
+
   useEffect(() => {
-    if (tab === "hours") loadSettings();
-  }, [tab, loadSettings]);
+    if (tab === "hours") {
+      loadSettings();
+      loadOverrides();
+    }
+  }, [tab, loadSettings, loadOverrides]);
 
   const byDay = useMemo(() => {
     const map = new Map<string, Appointment[]>();
@@ -247,6 +283,76 @@ export function AdminAppointments() {
         },
       };
     });
+  };
+
+  const patchOverrideLocal = (id: number, patch: Partial<AppointmentDateOverride>) => {
+    setOverrides((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+  };
+
+  const addOverride = async () => {
+    if (!newOverride.date) {
+      setOverridesError("Pick a date for the override.");
+      return;
+    }
+    setOverrideBusyId("new");
+    setOverridesError("");
+    try {
+      const created = await api.createAppointmentDateOverride({
+        date: newOverride.date,
+        enabled: newOverride.enabled,
+        start: newOverride.start,
+        end: newOverride.end,
+      });
+      setOverrides((prev) =>
+        [...prev.filter((o) => o.id !== created.id), created].sort((a, b) =>
+          a.date.localeCompare(b.date)
+        )
+      );
+      setNewOverride({ date: "", enabled: true, start: "10:00", end: "16:00" });
+      showToast("Override added");
+    } catch (err) {
+      setOverridesError(err instanceof Error ? err.message : "Could not add override.");
+    } finally {
+      setOverrideBusyId(null);
+    }
+  };
+
+  const saveOverride = async (override: AppointmentDateOverride) => {
+    setOverrideBusyId(override.id);
+    setOverridesError("");
+    try {
+      const saved = await api.updateAppointmentDateOverride(override.id, {
+        date: override.date,
+        enabled: override.enabled,
+        start: override.start,
+        end: override.end,
+      });
+      setOverrides((prev) =>
+        prev
+          .map((o) => (o.id === saved.id ? saved : o))
+          .sort((a, b) => a.date.localeCompare(b.date))
+      );
+      showToast("Override saved");
+    } catch (err) {
+      setOverridesError(err instanceof Error ? err.message : "Could not save override.");
+      await loadOverrides();
+    } finally {
+      setOverrideBusyId(null);
+    }
+  };
+
+  const removeOverride = async (id: number) => {
+    setOverrideBusyId(id);
+    setOverridesError("");
+    try {
+      await api.deleteAppointmentDateOverride(id);
+      setOverrides((prev) => prev.filter((o) => o.id !== id));
+      showToast("Override removed");
+    } catch (err) {
+      setOverridesError(err instanceof Error ? err.message : "Could not delete override.");
+    } finally {
+      setOverrideBusyId(null);
+    }
   };
 
   return (
@@ -571,9 +677,157 @@ export function AdminAppointments() {
                 </div>
               </div>
 
-              {settingsError && (
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(212,175,55,0.1)" }}
+              >
+                <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.08)" }}>
+                  <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
+                    Date overrides
+                  </span>
+                  <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem", fontFamily: "'Space Grotesk', sans-serif", marginTop: "4px" }}>
+                    Close a day or set custom hours for a specific date. Overrides replace weekly hours for that day only.
+                  </p>
+                </div>
+
+                <div className="px-6 py-4 flex flex-col lg:flex-row lg:items-end gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <Field label="Date">
+                    <input
+                      type="date"
+                      style={inputStyle}
+                      value={newOverride.date}
+                      onChange={(e) => setNewOverride({ ...newOverride, date: e.target.value })}
+                    />
+                  </Field>
+                  <label className="flex items-center gap-2 cursor-pointer pb-2 lg:pb-2.5">
+                    <input
+                      type="checkbox"
+                      checked={newOverride.enabled}
+                      onChange={(e) => setNewOverride({ ...newOverride, enabled: e.target.checked })}
+                      style={{ accentColor: "#D4AF37" }}
+                    />
+                    <span style={{ color: "rgba(255,255,255,0.7)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem" }}>
+                      Open
+                    </span>
+                  </label>
+                  <Field label="Start">
+                    <input
+                      type="time"
+                      disabled={!newOverride.enabled}
+                      style={{ ...inputStyle, opacity: newOverride.enabled ? 1 : 0.4 }}
+                      value={newOverride.start}
+                      onChange={(e) => setNewOverride({ ...newOverride, start: e.target.value })}
+                    />
+                  </Field>
+                  <Field label="End">
+                    <input
+                      type="time"
+                      disabled={!newOverride.enabled}
+                      style={{ ...inputStyle, opacity: newOverride.enabled ? 1 : 0.4 }}
+                      value={newOverride.end}
+                      onChange={(e) => setNewOverride({ ...newOverride, end: e.target.value })}
+                    />
+                  </Field>
+                  <button
+                    type="button"
+                    disabled={overrideBusyId === "new"}
+                    onClick={addOverride}
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold"
+                    style={{
+                      background: "rgba(212,175,55,0.12)",
+                      border: "1px solid rgba(212,175,55,0.28)",
+                      color: "#F0D060",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      cursor: overrideBusyId === "new" ? "wait" : "pointer",
+                      opacity: overrideBusyId === "new" ? 0.6 : 1,
+                    }}
+                  >
+                    <Plus size={14} />
+                    Add
+                  </button>
+                </div>
+
+                {overridesLoading ? (
+                  <div className="flex justify-center py-10">
+                    <div className="animate-spin h-6 w-6 border-2 border-amber-600 border-t-transparent rounded-full" />
+                  </div>
+                ) : overrides.length === 0 ? (
+                  <p
+                    className="px-6 py-8 text-center"
+                    style={{ color: "rgba(255,255,255,0.3)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.85rem" }}
+                  >
+                    No overrides in {overrideRange.from} – {overrideRange.to}
+                  </p>
+                ) : (
+                  <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                    {overrides.map((override) => {
+                      const busy = overrideBusyId === override.id;
+                      return (
+                        <div
+                          key={override.id}
+                          className="px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
+                          style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                        >
+                          <input
+                            type="date"
+                            value={override.date}
+                            onChange={(e) => patchOverrideLocal(override.id, { date: e.target.value })}
+                            style={{ ...inputStyle, width: "auto", minWidth: "9.5rem" }}
+                          />
+                          <label className="flex items-center gap-2 cursor-pointer sm:w-24 flex-shrink-0">
+                            <input
+                              type="checkbox"
+                              checked={override.enabled}
+                              onChange={(e) => patchOverrideLocal(override.id, { enabled: e.target.checked })}
+                              style={{ accentColor: "#D4AF37" }}
+                            />
+                            <span style={{ color: override.enabled ? "white" : "rgba(255,255,255,0.35)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem" }}>
+                              {override.enabled ? "Open" : "Closed"}
+                            </span>
+                          </label>
+                          <div className="flex items-center gap-2 flex-1">
+                            <input
+                              type="time"
+                              disabled={!override.enabled}
+                              value={override.start}
+                              onChange={(e) => patchOverrideLocal(override.id, { start: e.target.value })}
+                              style={{ ...inputStyle, width: "auto", opacity: override.enabled ? 1 : 0.4 }}
+                            />
+                            <span style={{ color: "rgba(255,255,255,0.3)" }}>–</span>
+                            <input
+                              type="time"
+                              disabled={!override.enabled}
+                              value={override.end}
+                              onChange={(e) => patchOverrideLocal(override.id, { end: e.target.value })}
+                              style={{ ...inputStyle, width: "auto", opacity: override.enabled ? 1 : 0.4 }}
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <ActionBtn
+                              label="Save"
+                              icon={Save}
+                              color="#D4AF37"
+                              disabled={busy}
+                              onClick={() => saveOverride(override)}
+                            />
+                            <ActionBtn
+                              label="Delete"
+                              icon={Trash2}
+                              color="#f87171"
+                              disabled={busy}
+                              onClick={() => removeOverride(override.id)}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {(settingsError || overridesError) && (
                 <p className="text-red-400 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {settingsError}
+                  {settingsError || overridesError}
                 </p>
               )}
 

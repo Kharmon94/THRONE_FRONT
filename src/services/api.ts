@@ -4,6 +4,7 @@ import type {
   Project,
   Appointment,
   AppointmentSettings,
+  AppointmentDateOverride,
   AppointmentStatus,
 } from "../types";
 
@@ -237,5 +238,50 @@ export const api = {
       }
     );
     return data.appointment_settings;
+  },
+
+  async getAppointmentDateOverrides(
+    from?: string,
+    to?: string
+  ): Promise<AppointmentDateOverride[]> {
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString();
+    const data = await request<{ appointment_date_overrides: AppointmentDateOverride[] }>(
+      `/admin/appointment_date_overrides${qs ? `?${qs}` : ""}`
+    );
+    return data.appointment_date_overrides;
+  },
+
+  async createAppointmentDateOverride(
+    override: Omit<AppointmentDateOverride, "id">
+  ): Promise<AppointmentDateOverride> {
+    const data = await request<{ appointment_date_override: AppointmentDateOverride }>(
+      "/admin/appointment_date_overrides",
+      {
+        method: "POST",
+        body: JSON.stringify({ appointment_date_override: override }),
+      }
+    );
+    return data.appointment_date_override;
+  },
+
+  async updateAppointmentDateOverride(
+    id: number,
+    patch: Partial<Omit<AppointmentDateOverride, "id">>
+  ): Promise<AppointmentDateOverride> {
+    const data = await request<{ appointment_date_override: AppointmentDateOverride }>(
+      `/admin/appointment_date_overrides/${id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ appointment_date_override: patch }),
+      }
+    );
+    return data.appointment_date_override;
+  },
+
+  async deleteAppointmentDateOverride(id: number): Promise<void> {
+    await request(`/admin/appointment_date_overrides/${id}`, { method: "DELETE" });
   },
 };

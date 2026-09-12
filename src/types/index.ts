@@ -60,6 +60,14 @@ export interface AppointmentSettings {
   weekly_hours: WeeklyHours;
 }
 
+export interface AppointmentDateOverride {
+  id: number;
+  date: string; // YYYY-MM-DD
+  enabled: boolean;
+  start: string; // HH:MM
+  end: string; // HH:MM
+}
+
 export interface ApiError {
   error?: string;
   errors?: string[];
