@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
-import { CheckCircle, AlertCircle, CalendarDays, ArrowLeft } from "lucide-react";
+import { CheckCircle, AlertCircle, CalendarDays, Clock, ArrowLeft, ArrowRight } from "lucide-react";
 import { api } from "../../services/api";
 import { Background } from "./Background";
 import { GlassCard } from "./GlassCard";
 import { MonthCalendar } from "./MonthCalendar";
+import { BookingStepIndicator } from "./BookingStepIndicator";
 import { ThroneIcon } from "./ThroneIcon";
 import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 import {
@@ -17,10 +18,38 @@ import {
   startOfMonth,
 } from "../../utils/datetime";
 
+const RESCHEDULE_STEPS = [
+  { id: 1, label: "Date" },
+  { id: 2, label: "Time" },
+];
+
 interface RescheduleBookingProps {
   token: string;
   onDone?: () => void;
 }
+
+function formatSelectedDay(date: Date) {
+  return date.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+const navBtnBase: React.CSSProperties = {
+  fontFamily: "'Space Grotesk', sans-serif",
+  fontWeight: 600,
+  fontSize: "0.85rem",
+  borderRadius: "12px",
+  padding: "12px 18px",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
+  border: "none",
+  cursor: "pointer",
+  transition: "all 0.2s",
+};
 
 export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
   const reduce = useReduceAnimations();
@@ -30,6 +59,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
   const [currentStartsAt, setCurrentStartsAt] = useState("");
   const [timezone, setTimezone] = useState("America/New_York");
 
+  const [step, setStep] = useState(1);
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [slots, setSlots] = useState<string[]>([]);
@@ -101,6 +131,22 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
     const key = dateKeyInZone(noon, timezone);
     return slotsByDay.get(key) ?? slotsByDay.get(localDateKey(selectedDay)) ?? [];
   }, [selectedDay, slotsByDay, timezone]);
+
+  const goNext = () => {
+    setError("");
+    if (step === 1) {
+      if (!selectedDay) {
+        setError("Please select a day.");
+        return;
+      }
+      setStep(2);
+    }
+  };
+
+  const goBack = () => {
+    setError("");
+    if (step === 2) setStep(1);
+  };
 
   const handleSubmit = async () => {
     if (!selectedSlot) {
@@ -186,7 +232,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
               </a>
             </GlassCard>
           ) : (
-            <GlassCard className="p-8">
+            <GlassCard className="p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <ThroneIcon size={28} />
                 <div>
@@ -199,65 +245,87 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
                 </div>
               </div>
 
-              <div className="space-y-5">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <CalendarDays size={15} style={{ color: "#D4AF37" }} />
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                      Pick a new day
-                    </span>
-                  </div>
-                  <MonthCalendar
-                    month={month}
-                    onMonthChange={(m) => {
-                      setMonth(m);
-                      setSelectedDay(null);
-                      setSelectedSlot(null);
-                    }}
-                    selected={selectedDay}
-                    onSelect={(d) => {
-                      setSelectedDay(d);
-                      setSelectedSlot(null);
-                    }}
-                    minMonth={minMonth}
-                    maxMonth={maxMonth}
-                    getDayMeta={(date) => {
-                      const noon = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-                      const key = dateKeyInZone(noon, timezone);
-                      const has = (slotsByDay.get(key) ?? slotsByDay.get(localDateKey(date)) ?? []).length > 0;
-                      return { disabled: slotsLoading || !has };
-                    }}
-                  />
-                </div>
+              <BookingStepIndicator steps={RESCHEDULE_STEPS} current={step} />
 
-                {selectedDay && (
+              <div className="space-y-5">
+                {step === 1 && (
                   <div>
-                    <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "10px" }}>
-                      Available times
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {daySlots.map((slot) => {
-                        const active = selectedSlot === slot;
-                        return (
-                          <button
-                            key={slot}
-                            type="button"
-                            onClick={() => setSelectedSlot(slot)}
-                            className="px-3.5 py-2 rounded-lg text-sm transition-all"
-                            style={{
-                              fontFamily: "'Space Grotesk', sans-serif",
-                              background: active ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.03)",
-                              border: active ? "1px solid rgba(212,175,55,0.5)" : "1px solid rgba(255,255,255,0.07)",
-                              color: active ? "#D4AF37" : "rgba(255,255,255,0.55)",
-                              fontWeight: active ? 600 : 400,
-                              cursor: "pointer",
-                            }}
-                          >
-                            {formatSlotTime(slot, timezone)}
-                          </button>
-                        );
-                      })}
+                    <div className="flex items-center gap-2 mb-3">
+                      <CalendarDays size={15} style={{ color: "#D4AF37" }} />
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                        Pick a new day
+                      </span>
                     </div>
+                    <MonthCalendar
+                      month={month}
+                      onMonthChange={(m) => {
+                        setMonth(m);
+                        setSelectedDay(null);
+                        setSelectedSlot(null);
+                      }}
+                      selected={selectedDay}
+                      onSelect={(d) => {
+                        setSelectedDay(d);
+                        setSelectedSlot(null);
+                        setError("");
+                      }}
+                      minMonth={minMonth}
+                      maxMonth={maxMonth}
+                      getDayMeta={(date) => {
+                        const noon = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+                        const key = dateKeyInZone(noon, timezone);
+                        const has = (slotsByDay.get(key) ?? slotsByDay.get(localDateKey(date)) ?? []).length > 0;
+                        return { disabled: slotsLoading || !has };
+                      }}
+                    />
+                    {slotsLoading && (
+                      <p className="mt-2" style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.78rem" }}>
+                        Loading availability…
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {step === 2 && selectedDay && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Clock size={15} style={{ color: "#D4AF37" }} />
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                        Available times · {formatSelectedDay(selectedDay)}
+                      </span>
+                    </div>
+                    {daySlots.length === 0 ? (
+                      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem" }}>
+                        No open slots this day.
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {daySlots.map((slot) => {
+                          const active = selectedSlot === slot;
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              onClick={() => {
+                                setSelectedSlot(slot);
+                                setError("");
+                              }}
+                              className="px-3.5 py-2 rounded-lg text-sm transition-all"
+                              style={{
+                                fontFamily: "'Space Grotesk', sans-serif",
+                                background: active ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.03)",
+                                border: active ? "1px solid rgba(212,175,55,0.5)" : "1px solid rgba(255,255,255,0.07)",
+                                color: active ? "#D4AF37" : "rgba(255,255,255,0.55)",
+                                fontWeight: active ? 600 : 400,
+                                cursor: "pointer",
+                              }}
+                            >
+                              {formatSlotTime(slot, timezone)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -265,27 +333,66 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
                   <div className="text-red-400 text-sm">{error}</div>
                 )}
 
-                <motion.button
-                  type="button"
-                  disabled={!selectedSlot || submitting}
-                  onClick={handleSubmit}
-                  className="w-full py-3.5 rounded-xl flex items-center justify-center gap-2"
-                  style={{
-                    background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    fontWeight: 700,
-                    fontSize: "0.9rem",
-                    color: "black",
-                    boxShadow: "0 0 24px rgba(212,175,55,0.3)",
-                    cursor: !selectedSlot || submitting ? "not-allowed" : "pointer",
-                    opacity: !selectedSlot ? 0.7 : 1,
-                    border: "none",
-                  }}
-                  whileHover={!reduce && selectedSlot && !submitting ? { scale: 1.01 } : undefined}
-                  whileTap={!reduce && selectedSlot && !submitting ? { scale: 0.99 } : undefined}
-                >
-                  {submitting ? "Saving…" : "Confirm new time"}
-                </motion.button>
+                <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between pt-1">
+                  {step > 1 ? (
+                    <button
+                      type="button"
+                      onClick={goBack}
+                      style={{
+                        ...navBtnBase,
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        color: "rgba(255,255,255,0.7)",
+                        width: "100%",
+                      }}
+                      className="sm:w-auto sm:min-w-[120px]"
+                    >
+                      <ArrowLeft size={15} /> Back
+                    </button>
+                  ) : (
+                    <div className="hidden sm:block" />
+                  )}
+
+                  {step === 1 ? (
+                    <motion.button
+                      type="button"
+                      onClick={goNext}
+                      disabled={!selectedDay}
+                      className="w-full sm:w-auto sm:min-w-[140px]"
+                      style={{
+                        ...navBtnBase,
+                        background: "linear-gradient(135deg, #F0D060, #D4AF37)",
+                        color: "black",
+                        boxShadow: "0 0 24px rgba(212,175,55,0.3)",
+                        opacity: !selectedDay ? 0.55 : 1,
+                        cursor: !selectedDay ? "not-allowed" : "pointer",
+                      }}
+                      whileHover={!reduce && selectedDay ? { scale: 1.01 } : undefined}
+                      whileTap={!reduce && selectedDay ? { scale: 0.99 } : undefined}
+                    >
+                      Next <ArrowRight size={15} />
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      type="button"
+                      disabled={!selectedSlot || submitting}
+                      onClick={handleSubmit}
+                      className="w-full sm:w-auto sm:min-w-[180px]"
+                      style={{
+                        ...navBtnBase,
+                        background: "linear-gradient(135deg, #F0D060, #D4AF37)",
+                        color: "black",
+                        boxShadow: "0 0 24px rgba(212,175,55,0.3)",
+                        cursor: !selectedSlot || submitting ? "not-allowed" : "pointer",
+                        opacity: !selectedSlot ? 0.7 : 1,
+                      }}
+                      whileHover={!reduce && selectedSlot && !submitting ? { scale: 1.01 } : undefined}
+                      whileTap={!reduce && selectedSlot && !submitting ? { scale: 0.99 } : undefined}
+                    >
+                      {submitting ? "Saving…" : "Confirm new time"}
+                    </motion.button>
+                  )}
+                </div>
               </div>
             </GlassCard>
           )}
