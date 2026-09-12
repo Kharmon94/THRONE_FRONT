@@ -20,7 +20,7 @@ export function Projects() {
     activeFilter === ALL ? published : published.filter((p) => p.category === activeFilter);
 
   return (
-    <section id="projects" className="py-28 px-4" ref={ref}>
+    <section id="projects" className="pt-16 md:pt-24 pb-28 px-4" ref={ref}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div

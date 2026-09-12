@@ -1,8 +1,5 @@
 import type { Page } from "../App";
 import { Background } from "../components/Background";
-import { Navbar } from "../components/Navbar";
-import { Hero } from "../components/Hero";
-import { About } from "../components/About";
 import { Services } from "../components/Services";
 import { Projects } from "../components/Projects";
 import { Contact } from "../components/Contact";
@@ -16,12 +13,9 @@ export function PublicSite({ onNavigate }: { onNavigate: (p: Page) => void }) {
     >
       <Background />
       <div className="relative z-10">
-        <Navbar onNavigate={onNavigate} />
         <main>
-          <Hero />
-          <About />
-          <Services />
           <Projects />
+          <Services />
           <Contact />
         </main>
         <Footer onNavigate={onNavigate} />
