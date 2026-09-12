@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
-import { ExternalLink } from "lucide-react";
+import { ChevronUp, ExternalLink } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { useProjects } from "../context/ProjectsContext";
 import { useReduceAnimations } from "../../hooks/useReduceAnimations";
@@ -21,6 +21,10 @@ export function Projects() {
 
   const scrollToBooking = () => {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -256,6 +260,29 @@ export function Projects() {
             })}
           </div>
         )}
+
+        <div className="flex justify-center mt-10 md:mt-12">
+          <motion.button
+            type="button"
+            onClick={scrollToTop}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm"
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 600,
+              background: "linear-gradient(135deg, #F0D060, #D4AF37)",
+              color: "black",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 0 24px rgba(212,175,55,0.3)",
+              letterSpacing: "0.02em",
+            }}
+            whileHover={!reduce ? { scale: 1.02 } : undefined}
+            whileTap={!reduce ? { scale: 0.98 } : undefined}
+          >
+            <ChevronUp size={16} aria-hidden />
+            Back to top
+          </motion.button>
+        </div>
       </div>
     </section>
   );
