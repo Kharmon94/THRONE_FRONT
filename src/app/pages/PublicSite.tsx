@@ -12,9 +12,9 @@ export function PublicSite() {
       <Background />
       <div className="relative z-10">
         <main>
-          <Projects />
-          <Services />
           <Contact />
+          <Services />
+          <Projects />
         </main>
       </div>
     </div>

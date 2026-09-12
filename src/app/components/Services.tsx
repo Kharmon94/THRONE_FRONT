@@ -10,7 +10,6 @@ const services = [
     title: "Web Development",
     tagline: "Full-Stack Excellence",
     desc: "From blazing-fast marketing sites to complex SaaS platforms, we build web experiences that convert and scale.",
-    techs: ["React", "Next.js", "Node.js", "PostgreSQL"],
     color: "#D4AF37",
     featured: true,
   },
@@ -19,7 +18,6 @@ const services = [
     title: "Mobile Applications",
     tagline: "iOS & Android",
     desc: "Native-quality cross-platform apps with fluid animations, offline support, and seamless UX.",
-    techs: ["React Native", "Flutter", "Swift", "Firebase"],
     color: "#C0C0C0",
     featured: false,
   },
@@ -28,7 +26,6 @@ const services = [
     title: "UI/UX Design",
     tagline: "Pixel-Perfect Craft",
     desc: "Design systems, user research, prototyping, and brand identity work that puts your product ahead.",
-    techs: ["Figma", "Framer", "Motion", "Design Systems"],
     color: "#D4AF37",
     featured: false,
   },
@@ -37,7 +34,6 @@ const services = [
     title: "Cloud & DevOps",
     tagline: "Infinite Scale",
     desc: "AWS & GCP architecture, Kubernetes, CI/CD pipelines, and infrastructure-as-code for zero-downtime deployments.",
-    techs: ["AWS", "GCP", "Docker", "Terraform"],
     color: "#C0C0C0",
     featured: false,
   },
@@ -46,7 +42,6 @@ const services = [
     title: "AI Integration",
     tagline: "Intelligent Products",
     desc: "Embed LLMs, computer vision, and predictive models into your product stack with clean, maintainable APIs.",
-    techs: ["OpenAI", "LangChain", "Python", "Vector DBs"],
     color: "#D4AF37",
     featured: false,
   },
@@ -55,7 +50,6 @@ const services = [
     title: "Digital Strategy",
     tagline: "Growth Architecture",
     desc: "Technical SEO, performance audits, conversion optimisation, and growth frameworks to scale your digital presence.",
-    techs: ["Analytics", "SEO", "A/B Testing", "CRO"],
     color: "#C0C0C0",
     featured: false,
   },
@@ -109,7 +103,7 @@ export function Services() {
 
         {/* Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {services.map(({ icon: Icon, title, tagline, desc, techs, color, featured }, i) => (
+          {services.map(({ icon: Icon, title, tagline, desc, color, featured }, i) => (
             <motion.div
               key={title}
               initial={{ opacity: 0, y: 40 }}
@@ -172,24 +166,6 @@ export function Services() {
                 >
                   {desc}
                 </p>
-
-                {/* Techs */}
-                <div className="flex flex-wrap gap-1.5 mb-5">
-                  {techs.map((t) => (
-                    <span
-                      key={t}
-                      className="px-2 py-0.5 rounded text-xs"
-                      style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.07)",
-                        color: "rgba(255,255,255,0.45)",
-                        fontFamily: "'Fira Code', monospace",
-                      }}
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
 
                 {/* CTA row */}
                 <div
