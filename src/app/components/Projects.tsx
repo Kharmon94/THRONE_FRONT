@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
-import { ExternalLink, ArrowUpRight } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { useProjects } from "../context/ProjectsContext";
 import { useReduceAnimations } from "../../hooks/useReduceAnimations";
@@ -95,21 +95,13 @@ export function Projects() {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((project, i) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 40 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{
-                  duration: reduce ? 0.3 : 0.55,
-                  delay: reduce ? Math.min(0.1 + i * 0.03, 0.35) : 0.25 + i * 0.1,
-                }}
-                layout
-              >
+            {filtered.map((project, i) => {
+              const hasLive = Boolean(project.live && project.live !== "#");
+              const card = (
                 <GlassCard
                   tilt
                   glow={`${project.color}18`}
-                  className="overflow-hidden h-full group"
+                  className={`overflow-hidden h-full group${hasLive ? " cursor-pointer" : ""}`}
                   style={{ border: `1px solid ${project.color}20` }}
                 >
                   {/* Image */}
@@ -146,12 +138,9 @@ export function Projects() {
                       )}
                     </div>
 
-                    {/* Live link */}
-                    {project.live && project.live !== "#" && (
-                      <a
-                        href={project.live}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    {/* Live link indicator (card itself is the link) */}
+                    {hasLive && (
+                      <div
                         className="absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         style={{
                           background: "rgba(6,5,4,0.8)",
@@ -161,25 +150,18 @@ export function Projects() {
                         }}
                       >
                         <ExternalLink size={13} />
-                      </a>
+                      </div>
                     )}
                   </div>
 
                   {/* Content */}
                   <div className="p-5">
-                    <div className="flex items-start justify-between mb-1.5">
-                      <h3
-                        className="text-white"
-                        style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em" }}
-                      >
-                        {project.title}
-                      </h3>
-                      <ArrowUpRight
-                        size={15}
-                        className="flex-shrink-0 mt-0.5 transition-colors duration-200 group-hover:opacity-100"
-                        style={{ color: "rgba(212,175,55,0.3)" }}
-                      />
-                    </div>
+                    <h3
+                      className="text-white mb-1.5"
+                      style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em" }}
+                    >
+                      {project.title}
+                    </h3>
 
                     <div
                       className="flex items-center gap-2 mb-3"
@@ -220,8 +202,35 @@ export function Projects() {
                     </div>
                   </div>
                 </GlassCard>
-              </motion.div>
-            ))}
+              );
+
+              return (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{
+                    duration: reduce ? 0.3 : 0.55,
+                    delay: reduce ? Math.min(0.1 + i * 0.03, 0.35) : 0.25 + i * 0.1,
+                  }}
+                  layout
+                >
+                  {hasLive ? (
+                    <a
+                      href={project.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block h-full"
+                      aria-label={`Open ${project.title}`}
+                    >
+                      {card}
+                    </a>
+                  ) : (
+                    card
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>

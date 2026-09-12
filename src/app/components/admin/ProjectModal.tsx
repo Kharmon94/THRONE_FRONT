@@ -82,13 +82,15 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (imageMode === "upload" && !imageFile) return;
+    const hasExistingImage = Boolean(initial?.image?.trim());
+    if (imageMode === "upload" && !imageFile && !hasExistingImage) return;
     if (imageMode === "url" && !form.image?.trim()) return;
     setSaving(true);
     try {
+      // Keep existing image when editing without selecting a new file / URL change.
       const data = imageMode === "upload" && imageFile
         ? { ...form, image: null, imageFile }
-        : { ...form, image: form.image?.trim() || null, imageFile: null };
+        : { ...form, image: form.image?.trim() || initial?.image || null, imageFile: null };
       await onSave(data);
       onClose();
     } finally {
@@ -260,7 +262,11 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                     <button
                       key={mode}
                       type="button"
-                      onClick={() => { setImageMode(mode); if (mode === "upload") set("image", ""); else setImageFile(null); }}
+                      onClick={() => {
+                        setImageMode(mode);
+                        // Preserve existing image URL when toggling modes on edit.
+                        if (mode === "url") setImageFile(null);
+                      }}
                       className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-all duration-150"
                       style={{
                         fontFamily: "'Space Grotesk', sans-serif",
@@ -309,19 +315,27 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full py-4 rounded-xl border-2 border-dashed transition-all duration-150 flex flex-col items-center justify-center gap-2"
                       style={{
-                        borderColor: imageFile ? "rgba(212,175,55,0.4)" : "rgba(212,175,55,0.2)",
-                        background: imageFile ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.02)",
+                        borderColor: imageFile || form.image ? "rgba(212,175,55,0.4)" : "rgba(212,175,55,0.2)",
+                        background: imageFile || form.image ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.02)",
                         color: "rgba(255,255,255,0.6)",
                         fontFamily: "'Space Grotesk', sans-serif",
                         cursor: "pointer",
                       }}
                     >
                       <Upload size={24} style={{ color: "#D4AF37" }} />
-                      {imageFile ? imageFile.name : "Click to select an image"}
+                      {imageFile
+                        ? imageFile.name
+                        : form.image
+                          ? "Keep current image, or click to replace"
+                          : "Click to select an image"}
                     </button>
-                    {imageFile && (
+                    {(imageFile || form.image) && (
                       <div className="mt-2 rounded-xl overflow-hidden h-28">
-                        <img src={URL.createObjectURL(imageFile)} alt="preview" className="w-full h-full object-cover opacity-60" />
+                        <img
+                          src={imageFile ? URL.createObjectURL(imageFile) : form.image}
+                          alt="preview"
+                          className="w-full h-full object-cover opacity-60"
+                        />
                       </div>
                     )}
                   </>

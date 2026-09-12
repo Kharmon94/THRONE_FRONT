@@ -79,7 +79,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       Object.entries(rest).forEach(([k, v]) => {
         if (v === undefined) return;
         const key = `project[${k === "live" ? "live_url" : k === "github" ? "github_url" : k}]`;
-        if (Array.isArray(v)) v.forEach((item) => formData.append(`${key}[]`, item));
+        if (Array.isArray(v)) v.forEach((item) => formData.append(`${key}[]`, String(item)));
         else formData.append(key, String(v));
       });
       formData.append("project[image]", imageFile);
@@ -98,7 +98,13 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
       if (rest.client !== undefined) payload.client = rest.client;
       if (rest.year !== undefined) payload.year = rest.year;
       if (rest.position !== undefined) payload.position = rest.position;
-      if (imageUrl !== undefined) payload.image_url = imageUrl;
+      // Only send image_url when the user actually changed it. Re-sending the
+      // existing Active Storage URL used to purge the attachment on the API.
+      const currentImage = projects.find((p) => String(p.id) === String(id))?.image ?? null;
+      const nextImage = typeof imageUrl === "string" ? imageUrl.trim() : imageUrl;
+      if (nextImage && nextImage !== currentImage) {
+        payload.image_url = nextImage;
+      }
       await api.updateProject(id, Object.keys(payload).length > 0 ? payload : {});
     }
     await refresh();
