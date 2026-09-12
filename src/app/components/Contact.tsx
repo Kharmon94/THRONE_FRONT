@@ -199,7 +199,7 @@ export function Contact() {
   const maxMonth = addMonths(minMonth, 3);
 
   return (
-    <section id="contact" className="pt-8 md:pt-10 pb-10 md:pb-12 px-4" ref={ref}>
+    <section id="contact" className="pt-8 md:pt-10 pb-6 md:pb-8 px-4" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

@@ -8,7 +8,7 @@ export function SectionFlowArrow() {
 
   return (
     <div
-      className="flex justify-center py-2 md:py-3"
+      className="flex justify-center pt-0 pb-2 md:pb-2"
       aria-hidden="true"
     >
       <motion.div

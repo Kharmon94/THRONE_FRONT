@@ -65,7 +65,7 @@ export function Services() {
   };
 
   return (
-    <section id="services" className="py-12 md:py-14 px-4 relative" ref={ref}>
+    <section id="services" className="pt-12 pb-6 md:pt-14 md:pb-8 px-4 relative" ref={ref}>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: "radial-gradient(ellipse at center, rgba(212,175,55,0.04) 0%, transparent 70%)" }}
