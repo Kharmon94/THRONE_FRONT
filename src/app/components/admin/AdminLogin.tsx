@@ -4,9 +4,13 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ThroneIcon } from "../ThroneIcon";
 import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
-import type { Page } from "../../App";
+import type { Page, AdminSubPage } from "../../App";
 
-export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
+export function AdminLogin({
+  onNavigate,
+}: {
+  onNavigate: (p: Page, sub?: AdminSubPage) => void;
+}) {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +26,7 @@ export function AdminLogin({ onNavigate }: { onNavigate: (p: Page) => void }) {
     try {
       const ok = await login(email, password);
       if (ok) {
-        onNavigate("admin");
+        onNavigate("admin", "projects");
       } else {
         setError("Incorrect email or password. Please try again.");
         setPassword("");

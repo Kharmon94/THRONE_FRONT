@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  LayoutDashboard,
   FolderKanban,
   CalendarDays,
   LogOut,
@@ -14,8 +13,7 @@ import { ThroneIcon } from "../ThroneIcon";
 import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type { Page, AdminSubPage } from "../../App";
 
-const navItems: { key: AdminSubPage; label: string; icon: typeof LayoutDashboard }[] = [
-  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+const navItems: { key: AdminSubPage; label: string; icon: typeof FolderKanban }[] = [
   { key: "projects", label: "Projects", icon: FolderKanban },
   { key: "appointments", label: "Appointments", icon: CalendarDays },
 ];

@@ -5,14 +5,13 @@ import { ProjectsProvider } from "./context/ProjectsContext";
 import { PublicSite } from "./pages/PublicSite";
 import { AdminLogin } from "./components/admin/AdminLogin";
 import { AdminShell } from "./components/admin/AdminShell";
-import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AdminProjects } from "./components/admin/AdminProjects";
 import { AdminAppointments } from "./components/admin/AdminAppointments";
 import { RescheduleBooking } from "./components/RescheduleBooking";
 import { canViewAdmin } from "../utils/permissions";
 
 export type Page = "home" | "admin-login" | "admin" | "reschedule";
-export type AdminSubPage = "dashboard" | "projects" | "appointments";
+export type AdminSubPage = "projects" | "appointments";
 
 function parseHash(): { page: Page; rescheduleToken: string | null } {
   const h = window.location.hash?.replace(/^#/, "") || "";
@@ -31,7 +30,7 @@ function AppContent() {
   const [rescheduleToken, setRescheduleToken] = useState<string | null>(
     () => parseHash().rescheduleToken
   );
-  const [adminSubPage, setAdminSubPage] = useState<AdminSubPage>("dashboard");
+  const [adminSubPage, setAdminSubPage] = useState<AdminSubPage>("projects");
 
   useEffect(() => {
     const syncFromHash = () => {
@@ -71,15 +70,10 @@ function AppContent() {
             adminSubPage={adminSubPage}
             setAdminSubPage={setAdminSubPage}
             renderChild={() =>
-              adminSubPage === "projects" ? (
-                <AdminProjects />
-              ) : adminSubPage === "appointments" ? (
+              adminSubPage === "appointments" ? (
                 <AdminAppointments />
               ) : (
-                <AdminDashboard
-                  onNavigateToProjects={() => setAdminSubPage("projects")}
-                  onNavigateToAppointments={() => setAdminSubPage("appointments")}
-                />
+                <AdminProjects />
               )
             }
           />
