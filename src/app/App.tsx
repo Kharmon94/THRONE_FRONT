@@ -69,7 +69,7 @@ function AppContent() {
           />
         );
       default:
-        return <PublicSite onNavigate={onNavigate} />;
+        return <PublicSite />;
     }
   };
 
