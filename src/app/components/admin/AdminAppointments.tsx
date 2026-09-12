@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { api } from "../../../services/api";
 import { MonthCalendar } from "../MonthCalendar";
+import { Switch } from "../ui/switch";
 import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type {
   Appointment,
@@ -644,11 +645,10 @@ export function AdminAppointments() {
                         style={{ borderColor: "rgba(255,255,255,0.04)" }}
                       >
                         <label className="flex items-center gap-3 sm:w-40 flex-shrink-0 cursor-pointer">
-                          <input
-                            type="checkbox"
+                          <Switch
                             checked={day.enabled}
-                            onChange={(e) => updateDayHours(key, { enabled: e.target.checked })}
-                            style={{ accentColor: "#D4AF37" }}
+                            onCheckedChange={(checked) => updateDayHours(key, { enabled: checked })}
+                            className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-white/20"
                           />
                           <span style={{ color: day.enabled ? "white" : "rgba(255,255,255,0.35)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.88rem", fontWeight: 500 }}>
                             {label}
@@ -700,11 +700,10 @@ export function AdminAppointments() {
                     />
                   </Field>
                   <label className="flex items-center gap-2 cursor-pointer pb-2 lg:pb-2.5">
-                    <input
-                      type="checkbox"
+                    <Switch
                       checked={newOverride.enabled}
-                      onChange={(e) => setNewOverride({ ...newOverride, enabled: e.target.checked })}
-                      style={{ accentColor: "#D4AF37" }}
+                      onCheckedChange={(checked) => setNewOverride({ ...newOverride, enabled: checked })}
+                      className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-white/20"
                     />
                     <span style={{ color: "rgba(255,255,255,0.7)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem" }}>
                       Open
@@ -774,12 +773,11 @@ export function AdminAppointments() {
                             onChange={(e) => patchOverrideLocal(override.id, { date: e.target.value })}
                             style={{ ...inputStyle, width: "auto", minWidth: "9.5rem" }}
                           />
-                          <label className="flex items-center gap-2 cursor-pointer sm:w-24 flex-shrink-0">
-                            <input
-                              type="checkbox"
+                          <label className="flex items-center gap-2 cursor-pointer sm:w-28 flex-shrink-0">
+                            <Switch
                               checked={override.enabled}
-                              onChange={(e) => patchOverrideLocal(override.id, { enabled: e.target.checked })}
-                              style={{ accentColor: "#D4AF37" }}
+                              onCheckedChange={(checked) => patchOverrideLocal(override.id, { enabled: checked })}
+                              className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-white/20"
                             />
                             <span style={{ color: override.enabled ? "white" : "rgba(255,255,255,0.35)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem" }}>
                               {override.enabled ? "Open" : "Closed"}

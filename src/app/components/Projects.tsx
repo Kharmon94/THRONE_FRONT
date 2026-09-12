@@ -22,6 +22,39 @@ export function Projects() {
   return (
     <section id="projects" className="pt-16 md:pt-24 pb-28 px-4" ref={ref}>
       <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: reduce ? 0.3 : 0.6 }}
+          className="text-center mb-16"
+        >
+          <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+            // our work
+          </span>
+          <h2
+            className="mt-2"
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 700,
+              fontSize: "clamp(2rem, 4vw, 3rem)",
+              background: "linear-gradient(135deg, #fff 0%, #C0C0C0 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Client Work
+          </h2>
+          <p
+            className="mt-4 max-w-xl mx-auto"
+            style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.95rem" }}
+          >
+            A selection of projects we&apos;re proud to have built for ambitious clients.
+          </p>
+        </motion.div>
+
         {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
