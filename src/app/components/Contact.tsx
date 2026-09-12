@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
-import { Mail, Send, MapPin, CheckCircle, Clock, CalendarDays } from "lucide-react";
+import { Send, CheckCircle, CalendarDays } from "lucide-react";
 import { api } from "../../services/api";
 import { GlassCard } from "./GlassCard";
-import { ThroneIcon } from "./ThroneIcon";
 import { MonthCalendar } from "./MonthCalendar";
 import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 import {
@@ -14,12 +13,6 @@ import {
   monthUtcRange,
   startOfMonth,
 } from "../../utils/datetime";
-
-const contactInfo = [
-  { icon: Mail, label: "Email Us", value: "thronetechnology@gmail.com", color: "#D4AF37", href: "mailto:thronetechnology@gmail.com" },
-  { icon: MapPin, label: "HQ", value: "New York, NY", color: "#D4AF37", href: "#" },
-  { icon: Clock, label: "Response", value: "Within 24 hours", color: "#C0C0C0", href: "#" },
-];
 
 const inputBase = {
   background: "rgba(255,255,255,0.03)",
@@ -145,7 +138,7 @@ export function Contact() {
 
   return (
     <section id="contact" className="py-28 px-4" ref={ref}>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -172,245 +165,180 @@ export function Contact() {
           </h2>
         </motion.div>
 
-        <div className="grid lg:grid-cols-5 gap-10">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: reduce ? 0.35 : 0.7, delay: reduce ? 0.05 : 0.2 }}
-            className="lg:col-span-2 space-y-5"
-          >
-            <GlassCard className="p-7">
-              <div className="flex items-center gap-3 mb-6">
-                <ThroneIcon size={32} />
-                <div>
-                  <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                    THRONE TECHNOLOGY
-                  </div>
-                  <div style={{ color: "rgba(212,175,55,0.5)", fontSize: "0.65rem", fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "0.12em" }}>
-                    BOOK A SLOT
-                  </div>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: reduce ? 0.35 : 0.7, delay: reduce ? 0.1 : 0.35 }}
+        >
+          <GlassCard className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <CalendarDays size={15} style={{ color: "#D4AF37" }} />
+                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                    Choose a day
+                  </span>
                 </div>
+                <MonthCalendar
+                  month={month}
+                  onMonthChange={handleMonthChange}
+                  selected={selectedDay}
+                  onSelect={handleSelectDay}
+                  minMonth={minMonth}
+                  maxMonth={maxMonth}
+                  getDayMeta={(date) => {
+                    const noon = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+                    const key = dateKeyInZone(noon, timezone);
+                    const has = (slotsByDay.get(key) ?? slotsByDay.get(localDateKey(date)) ?? []).length > 0;
+                    return { disabled: slotsLoading || !has };
+                  }}
+                />
+                {slotsLoading && (
+                  <p className="mt-2" style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.78rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                    Loading availability…
+                  </p>
+                )}
               </div>
 
-              <p style={{ color: "rgba(255,255,255,0.45)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.88rem", lineHeight: 1.7, marginBottom: "24px" }}>
-                Pick a day and time that works for you. We'll confirm shortly — times shown in {timezone.replace(/_/g, " ")}.
-              </p>
-
-              <div className="space-y-3">
-                {contactInfo.map(({ icon: Icon, label, value, color, href }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    className="flex items-center gap-3 p-3.5 rounded-xl transition-all duration-200 group"
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", textDecoration: "none" }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.background = `${color}0d`;
-                      (e.currentTarget as HTMLAnchorElement).style.borderColor = `${color}30`;
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.02)";
-                      (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.05)";
-                    }}
-                  >
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}18`, border: `1px solid ${color}25` }}>
-                      <Icon size={15} style={{ color }} />
-                    </div>
-                    <div>
-                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.68rem", fontFamily: "'Space Grotesk', sans-serif" }}>{label}</div>
-                      <div className="text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500, fontSize: "0.85rem" }}>{value}</div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </GlassCard>
-
-            <GlassCard className="p-5" style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: "#10b981", boxShadow: "0 0 10px rgba(16,185,129,0.7)", flexShrink: 0 }} />
+              {selectedDay && (
                 <div>
-                  <div className="text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.9rem" }}>Currently Accepting Projects</div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem", fontFamily: "'Space Grotesk', sans-serif" }}>Open slots update live as bookings come in</div>
-                </div>
-              </div>
-            </GlassCard>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: reduce ? 0.35 : 0.7, delay: reduce ? 0.1 : 0.35 }}
-            className="lg:col-span-3"
-          >
-            <GlassCard className="p-8 h-full">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <CalendarDays size={15} style={{ color: "#D4AF37" }} />
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                      Choose a day
-                    </span>
-                  </div>
-                  <MonthCalendar
-                    month={month}
-                    onMonthChange={handleMonthChange}
-                    selected={selectedDay}
-                    onSelect={handleSelectDay}
-                    minMonth={minMonth}
-                    maxMonth={maxMonth}
-                    getDayMeta={(date) => {
-                      const noon = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-                      const key = dateKeyInZone(noon, timezone);
-                      const has = (slotsByDay.get(key) ?? slotsByDay.get(localDateKey(date)) ?? []).length > 0;
-                      return { disabled: slotsLoading || !has };
-                    }}
-                  />
-                  {slotsLoading && (
-                    <p className="mt-2" style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.78rem", fontFamily: "'Space Grotesk', sans-serif" }}>
-                      Loading availability…
+                  <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "10px" }}>
+                    Available times
+                  </label>
+                  {daySlots.length === 0 ? (
+                    <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                      No open slots this day.
                     </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {daySlots.map((slot) => {
+                        const active = selectedSlot === slot;
+                        return (
+                          <button
+                            key={slot}
+                            type="button"
+                            onClick={() => setSelectedSlot(slot)}
+                            className="px-3.5 py-2 rounded-lg text-sm transition-all duration-150"
+                            style={{
+                              fontFamily: "'Space Grotesk', sans-serif",
+                              background: active ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.03)",
+                              border: active ? "1px solid rgba(212,175,55,0.5)" : "1px solid rgba(255,255,255,0.07)",
+                              color: active ? "#D4AF37" : "rgba(255,255,255,0.55)",
+                              fontWeight: active ? 600 : 400,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {formatSlotTime(slot, timezone)}
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
+              )}
 
-                {selectedDay && (
-                  <div>
-                    <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "10px" }}>
-                      Available times
-                    </label>
-                    {daySlots.length === 0 ? (
-                      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif" }}>
-                        No open slots this day.
-                      </p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {daySlots.map((slot) => {
-                          const active = selectedSlot === slot;
-                          return (
-                            <button
-                              key={slot}
-                              type="button"
-                              onClick={() => setSelectedSlot(slot)}
-                              className="px-3.5 py-2 rounded-lg text-sm transition-all duration-150"
-                              style={{
-                                fontFamily: "'Space Grotesk', sans-serif",
-                                background: active ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.03)",
-                                border: active ? "1px solid rgba(212,175,55,0.5)" : "1px solid rgba(255,255,255,0.07)",
-                                color: active ? "#D4AF37" : "rgba(255,255,255,0.55)",
-                                fontWeight: active ? 600 : 400,
-                                cursor: "pointer",
-                              }}
-                            >
-                              {formatSlotTime(slot, timezone)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                      Your Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={form.name}
-                      onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
-                      placeholder="Alex Johnson"
-                      style={inputBase}
-                      onFocus={(e) => focusStyle(e.target as HTMLElement)}
-                      onBlur={(e) => blurStyle(e.target as HTMLElement)}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
-                      placeholder="alex@company.com"
-                      style={inputBase}
-                      onFocus={(e) => focusStyle(e.target as HTMLElement)}
-                      onBlur={(e) => blurStyle(e.target as HTMLElement)}
-                    />
-                  </div>
-                </div>
-
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                    Company / Project Name
+                    Your Name *
                   </label>
                   <input
                     type="text"
-                    value={form.company}
-                    onChange={(e) => setForm((s) => ({ ...s, company: e.target.value }))}
-                    placeholder="Acme Corp"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
+                    placeholder="Alex Johnson"
                     style={inputBase}
                     onFocus={(e) => focusStyle(e.target as HTMLElement)}
                     onBlur={(e) => blurStyle(e.target as HTMLElement)}
                   />
                 </div>
-
                 <div>
                   <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                    Notes
+                    Email *
                   </label>
-                  <textarea
-                    rows={3}
-                    value={form.notes}
-                    onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))}
-                    placeholder="Anything we should know before the call…"
-                    style={{ ...inputBase, resize: "none" }}
+                  <input
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
+                    placeholder="alex@company.com"
+                    style={inputBase}
                     onFocus={(e) => focusStyle(e.target as HTMLElement)}
                     onBlur={(e) => blurStyle(e.target as HTMLElement)}
                   />
                 </div>
+              </div>
 
-                {error && (
-                  <div className="text-red-400 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{error}</div>
+              <div>
+                <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                  Company / Project Name
+                </label>
+                <input
+                  type="text"
+                  value={form.company}
+                  onChange={(e) => setForm((s) => ({ ...s, company: e.target.value }))}
+                  placeholder="Acme Corp"
+                  style={inputBase}
+                  onFocus={(e) => focusStyle(e.target as HTMLElement)}
+                  onBlur={(e) => blurStyle(e.target as HTMLElement)}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                  Notes
+                </label>
+                <textarea
+                  rows={3}
+                  value={form.notes}
+                  onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))}
+                  placeholder="Anything we should know before the call…"
+                  style={{ ...inputBase, resize: "none" }}
+                  onFocus={(e) => focusStyle(e.target as HTMLElement)}
+                  onBlur={(e) => blurStyle(e.target as HTMLElement)}
+                />
+              </div>
+
+              {error && (
+                <div className="text-red-400 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{error}</div>
+              )}
+
+              <motion.button
+                type="submit"
+                disabled={sending || sent || !selectedSlot}
+                className="w-full py-4 rounded-xl text-black flex items-center justify-center gap-2 transition-all duration-300"
+                style={{
+                  background: sent ? "linear-gradient(135deg, #10b981, #059669)" : "linear-gradient(135deg, #F0D060, #D4AF37)",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                  color: sent ? "white" : "black",
+                  boxShadow: sent ? "0 0 30px rgba(16,185,129,0.4)" : "0 0 30px rgba(212,175,55,0.35)",
+                  cursor: sending || !selectedSlot ? "not-allowed" : "pointer",
+                  letterSpacing: "0.02em",
+                  opacity: !selectedSlot && !sent ? 0.7 : 1,
+                }}
+                whileHover={!reduce && !sending && !sent && selectedSlot ? { scale: 1.01 } : undefined}
+                whileTap={!reduce && !sending && !sent && selectedSlot ? { scale: 0.99 } : undefined}
+              >
+                {sent ? (
+                  <><CheckCircle size={16} /> Booked — We'll confirm soon!</>
+                ) : sending ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Booking…
+                  </span>
+                ) : (
+                  <><Send size={15} /> Confirm Booking</>
                 )}
-
-                <motion.button
-                  type="submit"
-                  disabled={sending || sent || !selectedSlot}
-                  className="w-full py-4 rounded-xl text-black flex items-center justify-center gap-2 transition-all duration-300"
-                  style={{
-                    background: sent ? "linear-gradient(135deg, #10b981, #059669)" : "linear-gradient(135deg, #F0D060, #D4AF37)",
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    fontWeight: 700,
-                    fontSize: "0.9rem",
-                    color: sent ? "white" : "black",
-                    boxShadow: sent ? "0 0 30px rgba(16,185,129,0.4)" : "0 0 30px rgba(212,175,55,0.35)",
-                    cursor: sending || !selectedSlot ? "not-allowed" : "pointer",
-                    letterSpacing: "0.02em",
-                    opacity: !selectedSlot && !sent ? 0.7 : 1,
-                  }}
-                  whileHover={!reduce && !sending && !sent && selectedSlot ? { scale: 1.01 } : undefined}
-                  whileTap={!reduce && !sending && !sent && selectedSlot ? { scale: 0.99 } : undefined}
-                >
-                  {sent ? (
-                    <><CheckCircle size={16} /> Booked — We'll confirm soon!</>
-                  ) : sending ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                      </svg>
-                      Booking…
-                    </span>
-                  ) : (
-                    <><Send size={15} /> Confirm Booking</>
-                  )}
-                </motion.button>
-              </form>
-            </GlassCard>
-          </motion.div>
-        </div>
+              </motion.button>
+            </form>
+          </GlassCard>
+        </motion.div>
       </div>
     </section>
   );
