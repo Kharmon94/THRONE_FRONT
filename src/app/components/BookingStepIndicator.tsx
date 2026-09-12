@@ -12,7 +12,7 @@ export function BookingStepIndicator({ steps, current }: BookingStepIndicatorPro
   return (
     <nav
       aria-label="Booking steps"
-      className="w-full mb-8"
+      className="w-full mb-5 md:mb-6"
       style={{
         display: "grid",
         gridTemplateColumns: `repeat(${steps.length}, 1fr)`,

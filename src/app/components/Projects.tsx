@@ -19,15 +19,19 @@ export function Projects() {
   const filtered =
     activeFilter === ALL ? published : published.filter((p) => p.category === activeFilter);
 
+  const scrollToBooking = () => {
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <section id="projects" className="pt-16 md:pt-24 pb-28 px-4" ref={ref}>
+    <section id="projects" className="pt-10 md:pt-12 pb-16 md:pb-20 px-4" ref={ref}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: reduce ? 0.3 : 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-12"
         >
           <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
             // our work
@@ -53,6 +57,25 @@ export function Projects() {
           >
             A selection of projects we&apos;re proud to have built for ambitious clients.
           </p>
+          <motion.button
+            type="button"
+            onClick={scrollToBooking}
+            className="mt-6 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm"
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 600,
+              background: "linear-gradient(135deg, #F0D060, #D4AF37)",
+              color: "black",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 0 24px rgba(212,175,55,0.3)",
+              letterSpacing: "0.02em",
+            }}
+            whileHover={!reduce ? { scale: 1.02 } : undefined}
+            whileTap={!reduce ? { scale: 0.98 } : undefined}
+          >
+            Schedule A Conversation
+          </motion.button>
         </motion.div>
 
         {/* Filters */}
@@ -60,7 +83,7 @@ export function Projects() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: reduce ? 0.3 : 0.5 }}
-          className="flex justify-center gap-2 mb-12 flex-wrap"
+          className="flex justify-center gap-2 mb-8 md:mb-10 flex-wrap"
         >
           {categories.map((cat) => (
             <button

@@ -65,7 +65,7 @@ export function Services() {
   };
 
   return (
-    <section id="services" className="py-28 px-4 relative" ref={ref}>
+    <section id="services" className="py-12 md:py-14 px-4 relative" ref={ref}>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: "radial-gradient(ellipse at center, rgba(212,175,55,0.04) 0%, transparent 70%)" }}
@@ -77,7 +77,7 @@ export function Services() {
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: reduce ? 0.3 : 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 md:mb-12"
         >
           <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
             // what we do

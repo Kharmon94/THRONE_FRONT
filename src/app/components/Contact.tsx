@@ -199,13 +199,13 @@ export function Contact() {
   const maxMonth = addMonths(minMonth, 3);
 
   return (
-    <section id="contact" className="py-28 px-4" ref={ref}>
+    <section id="contact" className="pt-8 md:pt-10 pb-10 md:pb-12 px-4" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: reduce ? 0.3 : 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8 md:mb-10"
         >
           <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
             // book a call
