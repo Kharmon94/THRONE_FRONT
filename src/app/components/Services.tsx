@@ -40,8 +40,8 @@ const services = [
   {
     icon: Brain,
     title: "AI Integration",
-    tagline: "Intelligent Products",
-    desc: "Embed LLMs, computer vision, and predictive models into your product stack with clean, maintainable APIs.",
+    tagline: "Productized AI",
+    desc: "Agents, RAG, and tool use—wired into real product features with the guardrails to ship safely.",
     color: "#D4AF37",
     featured: false,
   },
