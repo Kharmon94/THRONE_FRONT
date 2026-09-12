@@ -7,28 +7,37 @@ import { AdminLogin } from "./components/admin/AdminLogin";
 import { AdminShell } from "./components/admin/AdminShell";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AdminProjects } from "./components/admin/AdminProjects";
-import { AdminContactEntries } from "./components/admin/AdminContactEntries";
+import { AdminAppointments } from "./components/admin/AdminAppointments";
+import { RescheduleBooking } from "./components/RescheduleBooking";
 import { canViewAdmin } from "../utils/permissions";
 
-export type Page = "home" | "admin-login" | "admin";
-export type AdminSubPage = "dashboard" | "projects" | "contact-entries";
+export type Page = "home" | "admin-login" | "admin" | "reschedule";
+export type AdminSubPage = "dashboard" | "projects" | "appointments";
 
-function parseHashToPage(): Page {
+function parseHash(): { page: Page; rescheduleToken: string | null } {
   const h = window.location.hash?.replace(/^#/, "") || "";
-  if (h === "admin/login") return "admin-login";
-  if (h === "admin") return "admin";
-  return "home";
+  const rescheduleMatch = h.match(/^book\/reschedule\/([^/]+)$/);
+  if (rescheduleMatch) {
+    return { page: "reschedule", rescheduleToken: decodeURIComponent(rescheduleMatch[1]) };
+  }
+  if (h === "admin/login") return { page: "admin-login", rescheduleToken: null };
+  if (h === "admin") return { page: "admin", rescheduleToken: null };
+  return { page: "home", rescheduleToken: null };
 }
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [page, setPage] = useState<Page>(() => parseHashToPage());
+  const [page, setPage] = useState<Page>(() => parseHash().page);
+  const [rescheduleToken, setRescheduleToken] = useState<string | null>(
+    () => parseHash().rescheduleToken
+  );
   const [adminSubPage, setAdminSubPage] = useState<AdminSubPage>("dashboard");
 
   useEffect(() => {
     const syncFromHash = () => {
-      const p = parseHashToPage();
-      setPage(p);
+      const parsed = parseHash();
+      setPage(parsed.page);
+      setRescheduleToken(parsed.rescheduleToken);
     };
     window.addEventListener("hashchange", syncFromHash);
     syncFromHash();
@@ -45,6 +54,13 @@ function AppContent() {
 
   const renderPage = () => {
     switch (page) {
+      case "reschedule":
+        return (
+          <RescheduleBooking
+            token={rescheduleToken || ""}
+            onDone={() => onNavigate("home")}
+          />
+        );
       case "admin-login":
         return <AdminLogin onNavigate={onNavigate} />;
       case "admin":
@@ -57,12 +73,12 @@ function AppContent() {
             renderChild={() =>
               adminSubPage === "projects" ? (
                 <AdminProjects />
-              ) : adminSubPage === "contact-entries" ? (
-                <AdminContactEntries />
+              ) : adminSubPage === "appointments" ? (
+                <AdminAppointments />
               ) : (
                 <AdminDashboard
                   onNavigateToProjects={() => setAdminSubPage("projects")}
-                  onNavigateToContactEntries={() => setAdminSubPage("contact-entries")}
+                  onNavigateToAppointments={() => setAdminSubPage("appointments")}
                 />
               )
             }

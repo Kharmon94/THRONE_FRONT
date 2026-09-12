@@ -1,4 +1,11 @@
-import type { User, AuthResponse, Project, ContactEntry } from "../types";
+import type {
+  User,
+  AuthResponse,
+  Project,
+  Appointment,
+  AppointmentSettings,
+  AppointmentStatus,
+} from "../types";
 
 const TOKEN_KEY = "throne_token";
 // Same-origin when served with API (empty); or VITE_API_URL for separate deployments; localhost in dev
@@ -41,6 +48,14 @@ function setToken(token: string): void {
 
 function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
+}
+
+function rangeQuery(from?: string, to?: string): string {
+  const params = new URLSearchParams();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const q = params.toString();
+  return q ? `?${q}` : "";
 }
 
 export const api = {
@@ -138,26 +153,89 @@ export const api = {
     return data.projects;
   },
 
-  async createContactEntry(data: {
+  async getAppointmentSlots(from: string, to: string): Promise<{ slots: string[]; timezone: string }> {
+    return request(`/appointments/slots${rangeQuery(from, to)}`);
+  },
+
+  async createAppointment(data: {
     name: string;
     email: string;
     company?: string;
-    budget?: string;
-    message: string;
-  }): Promise<ContactEntry> {
-    const parsed = await request<{ contact_entry: ContactEntry }>("/contact", {
+    notes?: string;
+    starts_at: string;
+  }): Promise<Appointment> {
+    const parsed = await request<{ appointment: Appointment }>("/appointments", {
       method: "POST",
-      body: JSON.stringify({ contact_entry: data }),
+      body: JSON.stringify({ appointment: data }),
     });
-    return parsed.contact_entry;
+    return parsed.appointment;
   },
 
-  async getContactEntries(): Promise<ContactEntry[]> {
-    const data = await request<{ contact_entries: ContactEntry[] }>("/admin/contact_entries");
-    return data.contact_entries;
+  async getRescheduleAppointment(token: string): Promise<{
+    appointment: Pick<
+      Appointment,
+      "id" | "name" | "email" | "company" | "notes" | "starts_at" | "duration_minutes" | "status"
+    >;
+    timezone: string;
+  }> {
+    return request(`/appointments/reschedule/${encodeURIComponent(token)}`);
   },
 
-  async deleteContactEntry(id: number): Promise<void> {
-    await request(`/admin/contact_entries/${id}`, { method: "DELETE" });
+  async updateRescheduleAppointment(token: string, starts_at: string): Promise<Appointment> {
+    const parsed = await request<{ appointment: Appointment }>(
+      `/appointments/reschedule/${encodeURIComponent(token)}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ appointment: { starts_at } }),
+      }
+    );
+    return parsed.appointment;
+  },
+
+  async getAdminAppointments(from?: string, to?: string): Promise<Appointment[]> {
+    const data = await request<{ appointments: Appointment[] }>(
+      `/admin/appointments${rangeQuery(from, to)}`
+    );
+    return data.appointments;
+  },
+
+  async updateAppointmentStatus(id: number, status: AppointmentStatus): Promise<Appointment> {
+    const data = await request<{ appointment: Appointment }>(`/admin/appointments/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ appointment: { status } }),
+    });
+    return data.appointment;
+  },
+
+  async emailAppointmentReschedule(id: number): Promise<Appointment> {
+    const data = await request<{ appointment: Appointment; message?: string }>(
+      `/admin/appointments/${id}/reschedule`,
+      { method: "POST" }
+    );
+    return data.appointment;
+  },
+
+  async deleteAppointment(id: number): Promise<void> {
+    await request(`/admin/appointments/${id}`, { method: "DELETE" });
+  },
+
+  async getAppointmentSettings(): Promise<AppointmentSettings> {
+    const data = await request<{ appointment_settings: AppointmentSettings }>(
+      "/admin/appointment_settings"
+    );
+    return data.appointment_settings;
+  },
+
+  async updateAppointmentSettings(
+    settings: Partial<AppointmentSettings>
+  ): Promise<AppointmentSettings> {
+    const data = await request<{ appointment_settings: AppointmentSettings }>(
+      "/admin/appointment_settings",
+      {
+        method: "PATCH",
+        body: JSON.stringify({ appointment_settings: settings }),
+      }
+    );
+    return data.appointment_settings;
   },
 };

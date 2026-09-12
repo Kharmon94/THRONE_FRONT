@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { FolderKanban, Eye, Star, FileX, ArrowRight, TrendingUp, Clock, Mail } from "lucide-react";
+import { FolderKanban, Eye, Star, FileX, ArrowRight, TrendingUp, Clock, CalendarDays } from "lucide-react";
 import { useProjects } from "../../context/ProjectsContext";
 import { api } from "../../../services/api";
 import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 
 export function AdminDashboard({
   onNavigateToProjects,
-  onNavigateToContactEntries,
+  onNavigateToAppointments,
 }: {
   onNavigateToProjects: () => void;
-  onNavigateToContactEntries: () => void;
+  onNavigateToAppointments: () => void;
 }) {
   const reduce = useReduceAnimations();
   const { projects } = useProjects();
-  const [contactCount, setContactCount] = useState<number>(0);
+  const [appointmentCount, setAppointmentCount] = useState<number>(0);
 
   useEffect(() => {
-    api.getContactEntries().then((e) => setContactCount(e.length)).catch(() => setContactCount(0));
+    api.getAdminAppointments().then((e) => setAppointmentCount(e.length)).catch(() => setAppointmentCount(0));
   }, []);
 
   const total     = projects.length;
@@ -30,9 +30,8 @@ export function AdminDashboard({
     { label: "Published",      value: published,     icon: Eye,          color: "#10b981",  sub: "live on site" },
     { label: "Drafts",         value: drafts,        icon: FileX,        color: "#C0C0C0",  sub: "in progress" },
     { label: "Featured",       value: featured,      icon: Star,         color: "#F0D060",  sub: "highlighted" },
-    { label: "Contact Entries", value: contactCount, icon: Mail,         color: "#60a5fa",  sub: "from form", onClick: onNavigateToContactEntries },
+    { label: "Appointments", value: appointmentCount, icon: CalendarDays, color: "#60a5fa",  sub: "bookings", onClick: onNavigateToAppointments },
   ];
-
   const categories = Array.from(new Set(projects.map((p) => p.category)));
   const recentProjects = [...projects].slice(0, 5);
 

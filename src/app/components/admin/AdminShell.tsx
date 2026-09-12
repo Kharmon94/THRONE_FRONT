@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   LayoutDashboard,
   FolderKanban,
-  Mail,
+  CalendarDays,
   LogOut,
   ExternalLink,
   Menu,
@@ -17,9 +17,8 @@ import type { Page, AdminSubPage } from "../../App";
 const navItems: { key: AdminSubPage; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "projects", label: "Projects", icon: FolderKanban },
-  { key: "contact-entries", label: "Contact Entries", icon: Mail },
+  { key: "appointments", label: "Appointments", icon: CalendarDays },
 ];
-
 interface AdminShellProps {
   onNavigate: (p: Page, sub?: AdminSubPage) => void;
   adminSubPage: AdminSubPage;
