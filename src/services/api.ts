@@ -130,6 +130,14 @@ export const api = {
     await request(`/admin/projects/${id}`, { method: "DELETE" });
   },
 
+  async reorderProjects(ids: Array<string | number>): Promise<Project[]> {
+    const data = await request<{ projects: Project[] }>("/admin/projects/reorder", {
+      method: "PATCH",
+      body: JSON.stringify({ ids }),
+    });
+    return data.projects;
+  },
+
   async createContactEntry(data: {
     name: string;
     email: string;

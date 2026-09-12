@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { api } from "../../services/api";
+import { canViewAdmin } from "../../utils/permissions";
 import { useAuth } from "./AuthContext";
 import type { Project } from "../../types";
 
@@ -22,7 +23,7 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const data = user ? await api.getAdminProjects() : await api.getProjects();
+      const data = canViewAdmin(user) ? await api.getAdminProjects() : await api.getProjects();
       setProjects(data);
     } catch {
       setProjects([]);
@@ -109,10 +110,8 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
   };
 
   const reorderProjects = async (newOrder: Project[]) => {
-    for (let i = 0; i < newOrder.length; i++) {
-      await api.updateProject(newOrder[i].id, { position: i });
-    }
-    await refresh();
+    const projects = await api.reorderProjects(newOrder.map((p) => p.id));
+    setProjects(projects);
   };
 
   return (

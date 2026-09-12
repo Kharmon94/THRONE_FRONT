@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { api } from "../../services/api";
+import { canViewAdmin } from "../../utils/permissions";
 import type { User } from "../../types";
 
 interface AuthContextType {
@@ -12,13 +13,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function acceptAdminUser(user: User | null): User | null {
+  if (!canViewAdmin(user)) {
+    api.clearToken();
+    return null;
+  }
+  return user;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.getCurrentUser().then((u) => {
-      setUser(u);
+      setUser(acceptAdminUser(u));
       setLoading(false);
     });
   }, []);
@@ -26,7 +35,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const data = await api.signIn(email, password);
-      setUser(data.user);
+      const admin = acceptAdminUser(data.user);
+      if (!admin) return false;
+      setUser(admin);
       return true;
     } catch {
       return false;

@@ -8,6 +8,7 @@ import { AdminShell } from "./components/admin/AdminShell";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AdminProjects } from "./components/admin/AdminProjects";
 import { AdminContactEntries } from "./components/admin/AdminContactEntries";
+import { canViewAdmin } from "../utils/permissions";
 
 export type Page = "home" | "admin-login" | "admin";
 export type AdminSubPage = "dashboard" | "projects" | "contact-entries";
@@ -47,7 +48,7 @@ function AppContent() {
       case "admin-login":
         return <AdminLogin onNavigate={onNavigate} />;
       case "admin":
-        if (!user) return <AdminLogin onNavigate={onNavigate} />;
+        if (!canViewAdmin(user)) return <AdminLogin onNavigate={onNavigate} />;
         return (
           <AdminShell
             onNavigate={onNavigate}
