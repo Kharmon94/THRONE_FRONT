@@ -6,18 +6,6 @@ export function Hero() {
   return (
     <section aria-labelledby="hero-title" className="px-4 pt-14 pb-6 md:pt-20 md:pb-10">
       <div className="max-w-6xl mx-auto">
-        <p
-          style={{
-            color: "var(--brand-gold)",
-            fontFamily: "var(--font-ui)",
-            fontWeight: 600,
-            fontSize: "0.75rem",
-            letterSpacing: "0.16em",
-            textTransform: "uppercase",
-          }}
-        >
-          Throne Technology
-        </p>
         <h1
           id="hero-title"
           className="font-display mt-3 max-w-3xl"
