@@ -79,27 +79,22 @@ export function Services() {
           transition={{ duration: reduce ? 0.3 : 0.6 }}
           className="text-center mb-10 md:mb-12"
         >
-          <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-            // what we do
-          </span>
+          <span style={{ color: "#D4AF37", fontFamily: "var(--font-ui)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>What we do</span>
           <h2
             className="mt-2"
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: 700,
+              fontFamily: "var(--font-display)",
+              fontWeight: 500,
               fontSize: "clamp(2rem, 4vw, 3rem)",
-              background: "linear-gradient(135deg, #fff 0%, #C0C0C0 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              letterSpacing: "-0.02em",
+              color: "var(--brand-offwhite)",
+              letterSpacing: "-0.01em",
             }}
           >
             Our Services
           </h2>
           <p
             className="mt-4 max-w-xl mx-auto"
-            style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.95rem" }}
+            style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-ui)", fontSize: "0.95rem" }}
           >
             End-to-end digital solutions — from concept to launch and beyond.
           </p>
@@ -133,7 +128,7 @@ export function Services() {
                       background: "rgba(212,175,55,0.15)",
                       border: "1px solid rgba(212,175,55,0.3)",
                       color: "#D4AF37",
-                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontWeight: 500,
                     }}
                   >
@@ -153,20 +148,20 @@ export function Services() {
                 </div>
 
                 <div
-                  style={{ color: `${color}99`, fontSize: "0.7rem", fontFamily: "'Fira Code', monospace", letterSpacing: "0.1em", textTransform: "uppercase" }}
+                  style={{ color: `${color}99`, fontSize: "0.7rem", fontFamily: "var(--font-ui)", letterSpacing: "0.1em", textTransform: "uppercase" }}
                   className="mb-1"
                 >
                   {tagline}
                 </div>
                 <h3
                   className="text-white mb-3"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.05rem", letterSpacing: "-0.01em" }}
+                  style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "1.05rem", letterSpacing: "-0.01em" }}
                 >
                   {title}
                 </h3>
                 <p
                   className="leading-relaxed mb-5"
-                  style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.87rem", fontFamily: "'Space Grotesk', sans-serif" }}
+                  style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.87rem", fontFamily: "var(--font-ui)" }}
                 >
                   {desc}
                 </p>
@@ -176,7 +171,7 @@ export function Services() {
                   type="button"
                   onClick={scrollToBooking}
                   className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer bg-transparent border-0 p-0"
-                  style={{ color, fontSize: "0.8rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500 }}
+                  style={{ color, fontSize: "0.8rem", fontFamily: "var(--font-ui)", fontWeight: 500 }}
                 >
                   Learn more <ArrowRight size={13} />
                 </button>

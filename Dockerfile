@@ -20,8 +20,11 @@ ENV PORT=3000
 
 COPY --from=build /app/dist ./dist
 
-RUN npm install -g serve
+RUN npm install -g serve@14.2.4
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "serve -s dist -l ${PORT:-3000}"]
+# No -s (SPA catch-all): unknown paths now return a real 404 (dist/404.html)
+# instead of a soft-404 200. All app routes are hash-based (/#admin, /#book/...);
+# /appointments (linked from the blog) is rewritten to index.html in dist/serve.json.
+CMD ["sh", "-c", "serve dist -l ${PORT:-3000}"]

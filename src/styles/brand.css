@@ -1,0 +1,129 @@
+/* Throne Tech brand tokens — aligned with the approved blog theme
+   (navy #030213, gold #D4AF37, off-white #f3f3f5; Newsreader display, Manrope UI). */
+:root {
+  --brand-navy: #030213;
+  --brand-navy-2: #0b0a1f;
+  --brand-navy-3: #1c1b2b;
+  --brand-gold: #D4AF37;
+  --brand-gold-lt: #F0D060;
+  --brand-gold-dk: #9A7B0A;
+  --brand-offwhite: #f3f3f5;
+  --brand-muted: #cbced4;
+  --font-display: "Newsreader", ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  --font-ui: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  background: var(--brand-navy);
+  color-scheme: dark;
+  scroll-padding-top: 88px;
+}
+
+body {
+  background: var(--brand-navy);
+  color: var(--brand-offwhite);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Visible keyboard focus everywhere (inline focus styles only covered mouse focus). */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand-gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Component classes live in the components layer so Tailwind utilities
+   (e.g. md:hidden, w-full, mt-8) can still override them. */
+@layer components {
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--brand-gold);
+  color: var(--brand-navy);
+  font-weight: 600;
+  transition: top 0.15s;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+.brand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--brand-navy);
+  background: linear-gradient(180deg, var(--brand-gold-lt), var(--brand-gold));
+  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.brand-btn:hover {
+  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.38);
+}
+.brand-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--brand-offwhite);
+  border: 1px solid rgba(243, 243, 245, 0.25);
+  background: transparent;
+}
+.brand-btn-ghost:hover {
+  border-color: var(--brand-gold);
+  color: var(--brand-gold-lt);
+}
+
+.brand-nav-link {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--brand-offwhite);
+  opacity: 0.85;
+  padding: 8px 4px;
+}
+.brand-nav-link:hover {
+  opacity: 1;
+  color: var(--brand-gold-lt);
+}
+
+.sr-only-brand {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .brand-btn, .skip-link { transition: none; }
+}

@@ -3,6 +3,7 @@ import { motion, useInView } from "motion/react";
 import { ChevronUp, ExternalLink } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { useProjects } from "../context/ProjectsContext";
+import { isSafeHttpUrl } from "../../utils/url";
 import { useReduceAnimations } from "../../hooks/useReduceAnimations";
 
 const ALL = "All";
@@ -37,27 +38,22 @@ export function Projects() {
           transition={{ duration: reduce ? 0.3 : 0.6 }}
           className="text-center mb-10 md:mb-12"
         >
-          <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-            // our work
-          </span>
+          <span style={{ color: "#D4AF37", fontFamily: "var(--font-ui)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>Our work</span>
           <h2
             className="mt-2"
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: 700,
+              fontFamily: "var(--font-display)",
+              fontWeight: 500,
               fontSize: "clamp(2rem, 4vw, 3rem)",
-              background: "linear-gradient(135deg, #fff 0%, #C0C0C0 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              letterSpacing: "-0.02em",
+              color: "var(--brand-offwhite)",
+              letterSpacing: "-0.01em",
             }}
           >
             Client Work
           </h2>
           <p
             className="mt-4 max-w-xl mx-auto"
-            style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.95rem" }}
+            style={{ color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-ui)", fontSize: "0.95rem" }}
           >
             A selection of projects we&apos;re proud to have built for ambitious clients.
           </p>
@@ -66,7 +62,7 @@ export function Projects() {
             onClick={scrollToBooking}
             className="mt-6 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm"
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontWeight: 600,
               background: "linear-gradient(135deg, #F0D060, #D4AF37)",
               color: "black",
@@ -95,7 +91,7 @@ export function Projects() {
               onClick={() => setActiveFilter(cat)}
               className="px-5 py-2 rounded-xl text-sm transition-all duration-200"
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontWeight: 500,
                 background:
                   activeFilter === cat
@@ -105,7 +101,7 @@ export function Projects() {
                   activeFilter === cat
                     ? "1px solid rgba(212,175,55,0.5)"
                     : "1px solid rgba(255,255,255,0.07)",
-                color: activeFilter === cat ? "#0a0800" : "rgba(255,255,255,0.45)",
+                color: activeFilter === cat ? "#030213" : "rgba(255,255,255,0.45)",
                 boxShadow:
                   activeFilter === cat ? "0 0 20px rgba(212,175,55,0.25)" : "none",
               }}
@@ -117,13 +113,13 @@ export function Projects() {
 
         {/* Projects grid */}
         {filtered.length === 0 ? (
-          <div className="text-center py-20" style={{ color: "rgba(255,255,255,0.25)", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <div className="text-center py-20" style={{ color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-ui)" }}>
             No published projects in this category yet.
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((project, i) => {
-              const hasLive = Boolean(project.live && project.live !== "#");
+              const hasLive = isSafeHttpUrl(project.live);
               const card = (
                 <GlassCard
                   tilt
@@ -155,7 +151,7 @@ export function Projects() {
                             background: "rgba(212,175,55,0.2)",
                             border: "1px solid rgba(212,175,55,0.4)",
                             color: "#D4AF37",
-                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontFamily: "var(--font-ui)",
                             fontWeight: 500,
                             backdropFilter: reduce ? "blur(6px)" : "blur(10px)",
                           }}
@@ -185,14 +181,14 @@ export function Projects() {
                   <div className="p-5">
                     <h3
                       className="text-white mb-1.5"
-                      style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em" }}
+                      style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "1rem", letterSpacing: "-0.01em" }}
                     >
                       {project.title}
                     </h3>
 
                     <div
                       className="flex items-center gap-2 mb-3"
-                      style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", fontFamily: "'Space Grotesk', sans-serif" }}
+                      style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", fontFamily: "var(--font-ui)" }}
                     >
                       <span>{project.client}</span>
                       {project.year && (
@@ -205,7 +201,7 @@ export function Projects() {
 
                     <p
                       className="text-sm mb-4 leading-relaxed line-clamp-2"
-                      style={{ color: "rgba(255,255,255,0.45)", fontFamily: "'Space Grotesk', sans-serif" }}
+                      style={{ color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-ui)" }}
                     >
                       {project.description}
                     </p>
@@ -220,7 +216,7 @@ export function Projects() {
                             background: `${project.color}12`,
                             border: `1px solid ${project.color}25`,
                             color: project.color,
-                            fontFamily: "'Fira Code', monospace",
+                            fontFamily: "var(--font-ui)",
                           }}
                         >
                           {tag}
@@ -267,7 +263,7 @@ export function Projects() {
             onClick={scrollToTop}
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm"
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontWeight: 600,
               background: "linear-gradient(135deg, #F0D060, #D4AF37)",
               color: "black",

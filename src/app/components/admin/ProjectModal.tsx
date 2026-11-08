@@ -32,7 +32,7 @@ const labelStyle: React.CSSProperties = {
   fontSize: "0.68rem",
   textTransform: "uppercase",
   letterSpacing: "0.1em",
-  fontFamily: "'Space Grotesk', sans-serif",
+  fontFamily: "var(--font-ui)",
   marginBottom: "6px",
 };
 
@@ -42,7 +42,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid rgba(212,175,55,0.12)",
   borderRadius: "10px",
   color: "white",
-  fontFamily: "'Space Grotesk', sans-serif",
+  fontFamily: "var(--font-ui)",
   fontSize: "0.85rem",
   padding: "10px 13px",
   outline: "none",
@@ -129,7 +129,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
             transition={{ duration: reduce ? 0.12 : 0.22, ease: "easeOut" }}
             className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl"
             style={{
-              background: "#0d0b08",
+              background: "#0b0a1f",
               border: "1px solid rgba(212,175,55,0.2)",
               boxShadow: "0 25px 60px rgba(0,0,0,0.8), 0 0 60px rgba(212,175,55,0.06)",
             }}
@@ -144,14 +144,14 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
             <div
               className="sticky top-0 px-6 py-5 flex items-center justify-between z-10"
               style={{
-                background: "#0d0b08",
+                background: "#0b0a1f",
                 borderBottom: "1px solid rgba(212,175,55,0.1)",
               }}
             >
               <div>
                 <h2
                   style={{
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontWeight: 700,
                     fontSize: "1.05rem",
                     background: "linear-gradient(135deg, #fff, #D4AF37)",
@@ -163,7 +163,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                 >
                   {initial ? "Edit Project" : "Add New Project"}
                 </h2>
-                <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", fontFamily: "'Space Grotesk', sans-serif", marginTop: "2px" }}>
+                <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", fontFamily: "var(--font-ui)", marginTop: "2px" }}>
                   {initial ? `Editing: ${initial.title}` : "Fill in the project details below"}
                 </p>
               </div>
@@ -220,7 +220,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                     onBlur={(e) => blurBorder(e.target as HTMLElement)}
                   >
                     {CATEGORIES.map((c) => (
-                      <option key={c} value={c} style={{ background: "#0d0b08", color: "white" }}>
+                      <option key={c} value={c} style={{ background: "#0b0a1f", color: "white" }}>
                         {c}
                       </option>
                     ))}
@@ -269,7 +269,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                       }}
                       className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-all duration-150"
                       style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontFamily: "var(--font-ui)",
                         fontWeight: imageMode === mode ? 600 : 400,
                         background: imageMode === mode ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.04)",
                         border: imageMode === mode ? "1px solid rgba(212,175,55,0.3)" : "1px solid rgba(255,255,255,0.08)",
@@ -285,7 +285,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                 {imageMode === "url" ? (
                   <>
                     <input
-                      value={form.image}
+                      value={form.image ?? ""}
                       onChange={(e) => set("image", e.target.value)}
                       placeholder="https://images.unsplash.com/..."
                       style={inputStyle}
@@ -318,7 +318,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                         borderColor: imageFile || form.image ? "rgba(212,175,55,0.4)" : "rgba(212,175,55,0.2)",
                         background: imageFile || form.image ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.02)",
                         color: "rgba(255,255,255,0.6)",
-                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontFamily: "var(--font-ui)",
                         cursor: "pointer",
                       }}
                     >
@@ -332,7 +332,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                     {(imageFile || form.image) && (
                       <div className="mt-2 rounded-xl overflow-hidden h-28">
                         <img
-                          src={imageFile ? URL.createObjectURL(imageFile) : form.image}
+                          src={imageFile ? URL.createObjectURL(imageFile) : form.image ?? undefined}
                           alt="preview"
                           className="w-full h-full object-cover opacity-60"
                         />
@@ -363,7 +363,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                       background: "rgba(212,175,55,0.12)",
                       border: "1px solid rgba(212,175,55,0.25)",
                       color: "#D4AF37",
-                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontWeight: 500,
                       cursor: "pointer",
                       whiteSpace: "nowrap",
@@ -383,7 +383,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                           border: "1px solid rgba(212,175,55,0.2)",
                           color: "#D4AF37",
                           fontSize: "0.78rem",
-                          fontFamily: "'Fira Code', monospace",
+                          fontFamily: "var(--font-ui)",
                         }}
                       >
                         {tag}
@@ -459,7 +459,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                         onClick={() => set("status", s)}
                         className="flex-1 py-2 rounded-lg text-xs transition-all duration-150"
                         style={{
-                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontFamily: "var(--font-ui)",
                           fontWeight: form.status === s ? 600 : 400,
                           background:
                             form.status === s
@@ -496,7 +496,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                     onClick={() => set("featured", !form.featured)}
                     className="w-full py-2 mt-1 rounded-lg text-xs transition-all duration-150"
                     style={{
-                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontWeight: form.featured ? 600 : 400,
                       background: form.featured ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.04)",
                       border: form.featured ? "1px solid rgba(212,175,55,0.35)" : "1px solid rgba(255,255,255,0.07)",
@@ -522,7 +522,7 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                     background: "rgba(255,255,255,0.04)",
                     border: "1px solid rgba(255,255,255,0.08)",
                     color: "rgba(255,255,255,0.5)",
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontWeight: 500,
                     cursor: "pointer",
                   }}
@@ -535,8 +535,8 @@ export function ProjectModal({ open, onClose, onSave, initial }: ProjectModalPro
                   className="flex-1 py-3 rounded-xl text-sm flex items-center justify-center gap-2"
                   style={{
                     background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                    color: "#0a0800",
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    color: "#030213",
+                    fontFamily: "var(--font-ui)",
                     fontWeight: 700,
                     cursor: saving ? "wait" : "pointer",
                     boxShadow: "0 0 20px rgba(212,175,55,0.3)",

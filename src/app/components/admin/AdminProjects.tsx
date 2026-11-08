@@ -21,7 +21,7 @@ export function AdminProjects() {
   const [editing, setEditing]       = useState<Project | null>(null);
   const [search, setSearch]         = useState("");
   const [filterStatus, setFilter]   = useState<"all" | "published" | "draft">("all");
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | number | null>(null);
   const [view, setView]             = useState<View>("grid");
 
   const filtered = projects.filter((p) => {
@@ -77,7 +77,7 @@ export function AdminProjects() {
         <div>
           <h1
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontWeight: 700,
               fontSize: "1.6rem",
               letterSpacing: "-0.02em",
@@ -89,7 +89,7 @@ export function AdminProjects() {
           >
             Projects
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif", marginTop: "2px" }}>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "var(--font-ui)", marginTop: "2px" }}>
             {projects.length} total · {projects.filter((p) => p.status === "published").length} published
           </p>
         </div>
@@ -99,7 +99,7 @@ export function AdminProjects() {
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-black text-sm transition-all duration-200"
           style={{
             background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "var(--font-ui)",
             fontWeight: 700,
             boxShadow: "0 0 20px rgba(212,175,55,0.35)",
             cursor: "pointer",
@@ -143,7 +143,7 @@ export function AdminProjects() {
               border: "1px solid rgba(212,175,55,0.12)",
               borderRadius: "12px",
               color: "white",
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontSize: "0.85rem",
               padding: "10px 14px 10px 40px",
               outline: "none",
@@ -168,7 +168,7 @@ export function AdminProjects() {
               onClick={() => setFilter(s)}
               className="px-4 py-2 rounded-xl text-sm transition-all duration-150 capitalize"
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontWeight: filterStatus === s ? 600 : 400,
                 background: filterStatus === s ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)",
                 border: filterStatus === s ? "1px solid rgba(212,175,55,0.3)" : "1px solid rgba(255,255,255,0.07)",
@@ -210,7 +210,7 @@ export function AdminProjects() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center py-24"
-          style={{ color: "rgba(255,255,255,0.2)", fontFamily: "'Space Grotesk', sans-serif" }}
+          style={{ color: "rgba(255,255,255,0.2)", fontFamily: "var(--font-ui)" }}
         >
           {search || filterStatus !== "all" ? "No projects match your filters." : "No projects yet — add your first one!"}
         </motion.div>
@@ -263,7 +263,7 @@ export function AdminProjects() {
               style={{
                 gridTemplateColumns: canReorder ? "auto 1fr auto auto auto auto" : "1fr auto auto auto auto",
                 color: "rgba(212,175,55,0.4)",
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontWeight: 600,
                 borderBottom: "1px solid rgba(212,175,55,0.08)",
               }}
@@ -308,11 +308,11 @@ export function AdminProjects() {
                           <img src={p.image ?? "https://placehold.co/100/1a1a1a/666?text=+"} alt={p.title} className="w-full h-full object-cover opacity-60" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.85rem" }}>{p.title}</div>
-                          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif" }}>{p.client}</div>
+                          <div className="text-white truncate" style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: "0.85rem" }}>{p.title}</div>
+                          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "var(--font-ui)" }}>{p.client}</div>
                         </div>
                       </div>
-                      <span className="hidden md:block px-2.5 py-1 rounded-lg text-xs" style={{ background: `${p.color}15`, color: p.color, fontFamily: "'Fira Code', monospace", whiteSpace: "nowrap" }}>
+                      <span className="hidden md:block px-2.5 py-1 rounded-lg text-xs" style={{ background: `${p.color}15`, color: p.color, fontFamily: "var(--font-ui)", whiteSpace: "nowrap" }}>
                         {p.category}
                       </span>
                       <button
@@ -329,7 +329,7 @@ export function AdminProjects() {
                           background: p.status === "published" ? "rgba(16,185,129,0.12)" : "rgba(156,163,175,0.1)",
                           border: p.status === "published" ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(156,163,175,0.18)",
                           color: p.status === "published" ? "#10b981" : "#9ca3af",
-                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontFamily: "var(--font-ui)",
                           fontWeight: 500,
                           cursor: "pointer",
                           whiteSpace: "nowrap",
@@ -378,7 +378,7 @@ export function AdminProjects() {
               transition={{ duration: 0.18 }}
               className="relative rounded-2xl p-7 w-full max-w-sm text-center"
               style={{
-                background: "#0d0b08",
+                background: "#0b0a1f",
                 border: "1px solid rgba(239,68,68,0.3)",
                 boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
               }}
@@ -389,24 +389,24 @@ export function AdminProjects() {
               >
                 <Trash2 size={22} style={{ color: "#f87171" }} />
               </div>
-              <h3 className="text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem" }}>
+              <h3 className="text-white mb-2" style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "1rem" }}>
                 Delete Project?
               </h3>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px" }}>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem", fontFamily: "var(--font-ui)", marginBottom: "20px" }}>
                 This action cannot be undone. The project will be permanently removed.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDelete(null)}
                   className="flex-1 py-2.5 rounded-xl text-sm transition-all duration-150"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)", fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer" }}
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-ui)", cursor: "pointer" }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDelete(confirmDelete)}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
-                  style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#f87171", fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer", fontWeight: 600 }}
+                  style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#f87171", fontFamily: "var(--font-ui)", cursor: "pointer", fontWeight: 600 }}
                 >
                   Delete
                 </button>
@@ -443,7 +443,7 @@ function DraggableProjectCard({
   onToggleStatus: () => void;
   onToggleFeatured: () => void;
 }) {
-  const [{ isDragging }, drag, preview] = useDrag<DraggableItem>({
+  const [{ isDragging }, drag, preview] = useDrag<DraggableItem, unknown, { isDragging: boolean }>({
     type: PROJECT_ITEM_TYPE,
     item: { id: project.id, index },
     collect: (monitor) => ({ isDragging: monitor.isDragging() }),
@@ -504,7 +504,7 @@ function DraggableProjectRow({
   onToggleStatus: () => void;
   onToggleFeatured: () => void;
 }) {
-  const [{ isDragging }, drag, preview] = useDrag<DraggableItem>({
+  const [{ isDragging }, drag, preview] = useDrag<DraggableItem, unknown, { isDragging: boolean }>({
     type: PROJECT_ITEM_TYPE,
     item: { id: p.id, index },
     collect: (monitor) => ({ isDragging: monitor.isDragging() }),
@@ -551,11 +551,11 @@ function DraggableProjectRow({
           <img src={p.image ?? "https://placehold.co/100/1a1a1a/666?text=+"} alt={p.title} className="w-full h-full object-cover opacity-60" />
         </div>
         <div className="min-w-0">
-          <div className="text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.85rem" }}>{p.title}</div>
-          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif" }}>{p.client}</div>
+          <div className="text-white truncate" style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: "0.85rem" }}>{p.title}</div>
+          <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "var(--font-ui)" }}>{p.client}</div>
         </div>
       </div>
-      <span className="hidden md:block px-2.5 py-1 rounded-lg text-xs" style={{ background: `${p.color}15`, color: p.color, fontFamily: "'Fira Code', monospace", whiteSpace: "nowrap" }}>
+      <span className="hidden md:block px-2.5 py-1 rounded-lg text-xs" style={{ background: `${p.color}15`, color: p.color, fontFamily: "var(--font-ui)", whiteSpace: "nowrap" }}>
         {p.category}
       </span>
       <button
@@ -572,7 +572,7 @@ function DraggableProjectRow({
           background: p.status === "published" ? "rgba(16,185,129,0.12)" : "rgba(156,163,175,0.1)",
           border: p.status === "published" ? "1px solid rgba(16,185,129,0.25)" : "1px solid rgba(156,163,175,0.18)",
           color: p.status === "published" ? "#10b981" : "#9ca3af",
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "var(--font-ui)",
           fontWeight: 500,
           cursor: "pointer",
           whiteSpace: "nowrap",
@@ -660,7 +660,7 @@ function ProjectCard({
               background: p.status === "published" ? "rgba(16,185,129,0.15)" : "rgba(156,163,175,0.12)",
               border: p.status === "published" ? "1px solid rgba(16,185,129,0.3)" : "1px solid rgba(156,163,175,0.2)",
               color: p.status === "published" ? "#10b981" : "#9ca3af",
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontWeight: 500,
               backdropFilter: "blur(8px)",
             }}
@@ -674,7 +674,7 @@ function ProjectCard({
       {/* Content */}
       <div className="p-4">
         <div className="flex items-start justify-between mb-1">
-          <h3 className="text-white leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.9rem" }}>
+          <h3 className="text-white leading-tight" style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "0.9rem" }}>
             {p.title}
           </h3>
           <button
@@ -687,18 +687,18 @@ function ProjectCard({
           </button>
         </div>
 
-        <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "10px" }}>
+        <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem", fontFamily: "var(--font-ui)", marginBottom: "10px" }}>
           {p.client} · {p.category} · {p.year}
         </div>
 
         <div className="flex flex-wrap gap-1.5 mb-4">
           {p.tags.slice(0, 3).map((tag) => (
-            <span key={tag} className="px-2 py-0.5 rounded text-xs" style={{ background: `${p.color}12`, border: `1px solid ${p.color}22`, color: p.color, fontFamily: "'Fira Code', monospace" }}>
+            <span key={tag} className="px-2 py-0.5 rounded text-xs" style={{ background: `${p.color}12`, border: `1px solid ${p.color}22`, color: p.color, fontFamily: "var(--font-ui)" }}>
               {tag}
             </span>
           ))}
           {p.tags.length > 3 && (
-            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", alignSelf: "center" }}>
+            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.72rem", fontFamily: "var(--font-ui)", alignSelf: "center" }}>
               +{p.tags.length - 3}
             </span>
           )}
@@ -709,7 +709,7 @@ function ProjectCard({
           <button
             onClick={onEdit}
             className="flex-1 py-2 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all duration-150"
-            style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.18)", color: "#D4AF37", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500, cursor: "pointer" }}
+            style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.18)", color: "#D4AF37", fontFamily: "var(--font-ui)", fontWeight: 500, cursor: "pointer" }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(212,175,55,0.15)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(212,175,55,0.08)")}
           >
@@ -722,7 +722,7 @@ function ProjectCard({
               background: p.status === "published" ? "rgba(156,163,175,0.08)" : "rgba(16,185,129,0.08)",
               border: p.status === "published" ? "1px solid rgba(156,163,175,0.18)" : "1px solid rgba(16,185,129,0.25)",
               color: p.status === "published" ? "#9ca3af" : "#10b981",
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontWeight: 500,
               cursor: "pointer",
             }}

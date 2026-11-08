@@ -27,7 +27,8 @@ import {
   dateKeyInZone,
   formatAppointmentWhen,
   localDateKey,
-  monthUtcRange,
+  monthUtcRangeForZone,
+  calendarDayKey,
   startOfMonth,
 } from "../../../utils/datetime";
 
@@ -56,7 +57,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid rgba(212,175,55,0.12)",
   borderRadius: "10px",
   color: "white",
-  fontFamily: "'Space Grotesk', sans-serif",
+  fontFamily: "var(--font-ui)",
   fontSize: "0.85rem",
   padding: "9px 12px",
   outline: "none",
@@ -71,7 +72,7 @@ function StatusBadge({ status }: { status: AppointmentStatus }) {
         background: `${color}18`,
         border: `1px solid ${color}40`,
         color,
-        fontFamily: "'Space Grotesk', sans-serif",
+        fontFamily: "var(--font-ui)",
         fontWeight: 500,
       }}
     >
@@ -120,7 +121,7 @@ export function AdminAppointments() {
     setLoading(true);
     setActionError("");
     try {
-      const { from, to } = monthUtcRange(m);
+      const { from, to } = monthUtcRangeForZone(m);
       const [list, settingsData] = await Promise.all([
         api.getAdminAppointments(from, to),
         api.getAppointmentSettings().catch(() => null),
@@ -187,20 +188,12 @@ export function AdminAppointments() {
     return map;
   }, [appointments, timezone]);
 
-  const selectedKey = selectedDay
-    ? dateKeyInZone(
-        new Date(selectedDay.getFullYear(), selectedDay.getMonth(), selectedDay.getDate(), 12),
-        timezone
-      )
-    : null;
+  // Calendar cells are business-timezone dates (see calendarDayKey).
+  const selectedKey = selectedDay ? calendarDayKey(selectedDay) : null;
 
   const dayAppointments = useMemo(() => {
     if (!selectedDay || !selectedKey) return [];
-    return (
-      byDay.get(selectedKey) ??
-      byDay.get(localDateKey(selectedDay)) ??
-      []
-    ).slice().sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+    return (byDay.get(selectedKey) ?? []).slice().sort((a, b) => a.starts_at.localeCompare(b.starts_at));
   }, [byDay, selectedDay, selectedKey]);
 
   const showToast = (msg: string) => {
@@ -226,11 +219,16 @@ export function AdminAppointments() {
     setBusyId(id);
     setActionError("");
     try {
-      const updated = await api.emailAppointmentReschedule(id);
-      setAppointments((prev) => prev.map((a) => (a.id === id ? updated : a)));
-      showToast("Reschedule email sent");
+      const result = await api.emailAppointmentReschedule(id);
+      setAppointments((prev) => prev.map((a) => (a.id === id ? result.appointment : a)));
+      // Accepted by the email provider, not confirmed delivered to the inbox.
+      showToast("Reschedule email accepted for delivery");
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Could not send email.");
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : "The reschedule email could not be sent. No link was issued."
+      );
     } finally {
       setBusyId(null);
     }
@@ -367,7 +365,7 @@ export function AdminAppointments() {
         <div>
           <h1
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontWeight: 700,
               fontSize: "1.6rem",
               letterSpacing: "-0.02em",
@@ -379,7 +377,7 @@ export function AdminAppointments() {
           >
             Appointments
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif", marginTop: "2px" }}>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "var(--font-ui)", marginTop: "2px" }}>
             {appointments.length} this month · {timezone.replace(/_/g, " ")}
           </p>
         </div>
@@ -402,7 +400,7 @@ export function AdminAppointments() {
                 onClick={() => setTab(key)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all"
                 style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: "var(--font-ui)",
                   fontWeight: active ? 600 : 400,
                   background: active ? "rgba(212,175,55,0.15)" : "transparent",
                   color: active ? "#D4AF37" : "rgba(255,255,255,0.4)",
@@ -429,7 +427,7 @@ export function AdminAppointments() {
               background: "rgba(16,185,129,0.12)",
               border: "1px solid rgba(16,185,129,0.3)",
               color: "#10b981",
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--font-ui)",
             }}
           >
             {toast}
@@ -458,16 +456,14 @@ export function AdminAppointments() {
                 selected={selectedDay}
                 onSelect={setSelectedDay}
                 getDayMeta={(date) => {
-                  const noon = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-                  const key = dateKeyInZone(noon, timezone);
-                  const list = byDay.get(key) ?? byDay.get(localDateKey(date)) ?? [];
+                  const list = byDay.get(calendarDayKey(date)) ?? [];
                   const dots = [...new Set(list.map((a) => STATUS_COLORS[a.status]))];
                   return { dots };
                 }}
               />
             )}
             {actionError && (
-              <p className="mt-3 text-red-400 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <p className="mt-3 text-red-400 text-sm" style={{ fontFamily: "var(--font-ui)" }}>
                 {actionError}
               </p>
             )}
@@ -475,7 +471,7 @@ export function AdminAppointments() {
               {(Object.keys(STATUS_COLORS) as AppointmentStatus[]).map((s) => (
                 <div key={s} className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full" style={{ background: STATUS_COLORS[s] }} />
-                  <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "capitalize" }}>
+                  <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.72rem", fontFamily: "var(--font-ui)", textTransform: "capitalize" }}>
                     {s}
                   </span>
                 </div>
@@ -497,23 +493,23 @@ export function AdminAppointments() {
                 className="px-5 py-4"
                 style={{ borderBottom: "1px solid rgba(212,175,55,0.08)" }}
               >
-                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", fontFamily: "var(--font-ui)", fontWeight: 600 }}>
                   {selectedDay
                     ? selectedDay.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })
                     : "Select a day"}
                 </div>
-                <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.75rem", fontFamily: "var(--font-ui)" }}>
                   {dayAppointments.length} appointment{dayAppointments.length === 1 ? "" : "s"}
                 </div>
               </div>
 
               <div className="p-4 space-y-3 max-h-[560px] overflow-y-auto">
                 {!selectedDay ? (
-                  <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif", textAlign: "center", padding: "32px 0" }}>
+                  <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.85rem", fontFamily: "var(--font-ui)", textAlign: "center", padding: "32px 0" }}>
                     Click a day on the calendar
                   </p>
                 ) : dayAppointments.length === 0 ? (
-                  <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif", textAlign: "center", padding: "32px 0" }}>
+                  <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.85rem", fontFamily: "var(--font-ui)", textAlign: "center", padding: "32px 0" }}>
                     No appointments this day
                   </p>
                 ) : (
@@ -530,7 +526,7 @@ export function AdminAppointments() {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <div className="text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: "0.9rem" }}>
+                            <div className="text-white" style={{ fontFamily: "var(--font-ui)", fontWeight: 600, fontSize: "0.9rem" }}>
                               {a.name}
                             </div>
                             <a href={`mailto:${a.email}`} style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.78rem", textDecoration: "none" }}>
@@ -542,7 +538,7 @@ export function AdminAppointments() {
                           </div>
                           <StatusBadge status={a.status} />
                         </div>
-                        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.82rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                        <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.82rem", fontFamily: "var(--font-ui)" }}>
                           {formatAppointmentWhen(a.starts_at, timezone)} · {a.duration_minutes}m
                         </div>
                         {a.notes && (
@@ -631,7 +627,7 @@ export function AdminAppointments() {
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(212,175,55,0.1)" }}
               >
                 <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.08)" }}>
-                  <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
+                  <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", fontFamily: "var(--font-ui)", fontWeight: 600 }}>
                     Weekly hours
                   </span>
                 </div>
@@ -650,7 +646,7 @@ export function AdminAppointments() {
                             onCheckedChange={(checked) => updateDayHours(key, { enabled: checked })}
                             className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-white/20"
                           />
-                          <span style={{ color: day.enabled ? "white" : "rgba(255,255,255,0.35)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.88rem", fontWeight: 500 }}>
+                          <span style={{ color: day.enabled ? "white" : "rgba(255,255,255,0.35)", fontFamily: "var(--font-ui)", fontSize: "0.88rem", fontWeight: 500 }}>
                             {label}
                           </span>
                         </label>
@@ -682,10 +678,10 @@ export function AdminAppointments() {
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(212,175,55,0.1)" }}
               >
                 <div className="px-6 py-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.08)" }}>
-                  <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
+                  <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", fontFamily: "var(--font-ui)", fontWeight: 600 }}>
                     Date overrides
                   </span>
-                  <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem", fontFamily: "'Space Grotesk', sans-serif", marginTop: "4px" }}>
+                  <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem", fontFamily: "var(--font-ui)", marginTop: "4px" }}>
                     Close a day or set custom hours for a specific date. Overrides replace weekly hours for that day only.
                   </p>
                 </div>
@@ -705,7 +701,7 @@ export function AdminAppointments() {
                       onCheckedChange={(checked) => setNewOverride({ ...newOverride, enabled: checked })}
                       className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-white/20"
                     />
-                    <span style={{ color: "rgba(255,255,255,0.7)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem" }}>
+                    <span style={{ color: "rgba(255,255,255,0.7)", fontFamily: "var(--font-ui)", fontSize: "0.82rem" }}>
                       Open
                     </span>
                   </label>
@@ -736,7 +732,7 @@ export function AdminAppointments() {
                       background: "rgba(212,175,55,0.12)",
                       border: "1px solid rgba(212,175,55,0.28)",
                       color: "#F0D060",
-                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       cursor: overrideBusyId === "new" ? "wait" : "pointer",
                       opacity: overrideBusyId === "new" ? 0.6 : 1,
                     }}
@@ -753,7 +749,7 @@ export function AdminAppointments() {
                 ) : overrides.length === 0 ? (
                   <p
                     className="px-6 py-8 text-center"
-                    style={{ color: "rgba(255,255,255,0.3)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.85rem" }}
+                    style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-ui)", fontSize: "0.85rem" }}
                   >
                     No overrides in {overrideRange.from} – {overrideRange.to}
                   </p>
@@ -779,7 +775,7 @@ export function AdminAppointments() {
                               onCheckedChange={(checked) => patchOverrideLocal(override.id, { enabled: checked })}
                               className="data-[state=checked]:bg-[#D4AF37] data-[state=unchecked]:bg-white/20"
                             />
-                            <span style={{ color: override.enabled ? "white" : "rgba(255,255,255,0.35)", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.82rem" }}>
+                            <span style={{ color: override.enabled ? "white" : "rgba(255,255,255,0.35)", fontFamily: "var(--font-ui)", fontSize: "0.82rem" }}>
                               {override.enabled ? "Open" : "Closed"}
                             </span>
                           </label>
@@ -824,7 +820,7 @@ export function AdminAppointments() {
               </div>
 
               {(settingsError || overridesError) && (
-                <p className="text-red-400 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <p className="text-red-400 text-sm" style={{ fontFamily: "var(--font-ui)" }}>
                   {settingsError || overridesError}
                 </p>
               )}
@@ -836,8 +832,8 @@ export function AdminAppointments() {
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
                 style={{
                   background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                  color: "#0a0800",
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  color: "#030213",
+                  fontFamily: "var(--font-ui)",
                   border: "none",
                   cursor: settingsSaving ? "wait" : "pointer",
                   boxShadow: "0 0 24px rgba(212,175,55,0.25)",
@@ -869,7 +865,7 @@ export function AdminAppointments() {
               transition={{ duration: reduce ? 0.12 : 0.18 }}
               className="relative rounded-2xl p-7 w-full max-w-sm text-center"
               style={{
-                background: "#0d0b08",
+                background: "#0b0a1f",
                 border: "1px solid rgba(239,68,68,0.3)",
                 boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
               }}
@@ -880,10 +876,10 @@ export function AdminAppointments() {
               >
                 <Trash2 size={22} style={{ color: "#f87171" }} />
               </div>
-              <h3 className="text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1rem" }}>
+              <h3 className="text-white mb-2" style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "1rem" }}>
                 Delete appointment?
               </h3>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px" }}>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem", fontFamily: "var(--font-ui)", marginBottom: "20px" }}>
                 This action cannot be undone.
               </p>
               <div className="flex gap-3">
@@ -891,7 +887,7 @@ export function AdminAppointments() {
                   type="button"
                   onClick={() => setConfirmDelete(null)}
                   className="flex-1 py-2.5 rounded-xl text-sm"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)", fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer" }}
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-ui)", cursor: "pointer" }}
                 >
                   Keep
                 </button>
@@ -899,7 +895,7 @@ export function AdminAppointments() {
                   type="button"
                   onClick={() => handleDelete(confirmDelete)}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                  style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#f87171", fontFamily: "'Space Grotesk', sans-serif", cursor: "pointer" }}
+                  style={{ background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.4)", color: "#f87171", fontFamily: "var(--font-ui)", cursor: "pointer" }}
                 >
                   Delete
                 </button>
@@ -920,7 +916,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
           display: "block",
           color: "rgba(255,255,255,0.35)",
           fontSize: "0.68rem",
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "var(--font-ui)",
           textTransform: "uppercase",
           letterSpacing: "0.1em",
           marginBottom: "8px",
@@ -957,7 +953,7 @@ function ActionBtn({
         background: `${color}14`,
         border: `1px solid ${color}35`,
         color,
-        fontFamily: "'Space Grotesk', sans-serif",
+        fontFamily: "var(--font-ui)",
         fontWeight: 500,
         cursor: disabled ? "wait" : "pointer",
         opacity: disabled ? 0.5 : 1,

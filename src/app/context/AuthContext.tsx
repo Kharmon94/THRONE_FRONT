@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { api } from "../../services/api";
+import { api, ApiError } from "../../services/api";
 import { canViewAdmin } from "../../utils/permissions";
 import type { User } from "../../types";
 
@@ -26,10 +26,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.getCurrentUser().then((u) => {
-      setUser(acceptAdminUser(u));
-      setLoading(false);
-    });
+    api
+      .getCurrentUser()
+      .then((u) => setUser(acceptAdminUser(u)))
+      // Network/server error: keep the stored token, show signed-out UI for now.
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -39,8 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!admin) return false;
       setUser(admin);
       return true;
-    } catch {
-      return false;
+    } catch (err) {
+      // Wrong credentials -> false; network/server/rate-limit errors propagate
+      // so the login screen can show what actually went wrong.
+      if (err instanceof ApiError && err.status === 401) return false;
+      throw err;
     }
   };
 

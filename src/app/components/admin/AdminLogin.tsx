@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ThroneIcon } from "../ThroneIcon";
+import { BrandWordmark } from "../BrandWordmark";
 import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type { Page, AdminSubPage } from "../../App";
 
@@ -31,8 +32,8 @@ export function AdminLogin({
         setError("Incorrect email or password. Please try again.");
         setPassword("");
       }
-    } catch {
-      setError("Login failed. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed. Please try again.");
       setPassword("");
     } finally {
       setLoading(false);
@@ -43,8 +44,8 @@ export function AdminLogin({
     <div
       className="min-h-screen flex items-center justify-center px-4"
       style={{
-        background: "linear-gradient(135deg, #060504 0%, #0d0b07 50%, #060504 100%)",
-        fontFamily: "'Space Grotesk', sans-serif",
+        background: "linear-gradient(135deg, #030213 0%, #0b0a1f 50%, #030213 100%)",
+        fontFamily: "var(--font-ui)",
       }}
     >
       {/* Background orbs */}
@@ -98,27 +99,15 @@ export function AdminLogin({
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="mb-4">
-              <ThroneIcon size={48} />
+              <ThroneIcon size={56} />
             </div>
-            <div
-              style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontWeight: 700,
-                fontSize: "1.3rem",
-                background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              THRONE TECHNOLOGY
-            </div>
+            <h1 className="sr-only-brand">Throne Tech admin sign in</h1>
+            <BrandWordmark width={150} label="Throne Tech" />
             <div
               style={{
                 color: "rgba(212,175,55,0.4)",
                 fontSize: "0.65rem",
-                fontFamily: "'Fira Code', monospace",
+                fontFamily: "var(--font-ui)",
                 letterSpacing: "0.2em",
                 marginTop: "3px",
               }}
@@ -136,9 +125,10 @@ export function AdminLogin({
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
+                htmlFor="admin-email"
                 style={{
                   display: "block",
-                  color: "rgba(255,255,255,0.35)",
+                  color: "rgba(243,243,245,0.7)",
                   fontSize: "0.7rem",
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
@@ -155,6 +145,7 @@ export function AdminLogin({
                   <Mail size={15} />
                 </div>
                 <input
+                  id="admin-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -169,7 +160,7 @@ export function AdminLogin({
                       : "1px solid rgba(212,175,55,0.15)",
                     borderRadius: "12px",
                     color: "white",
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontSize: "0.9rem",
                     padding: "12px 44px",
                     outline: "none",
@@ -192,9 +183,10 @@ export function AdminLogin({
             </div>
             <div>
               <label
+                htmlFor="admin-password"
                 style={{
                   display: "block",
-                  color: "rgba(255,255,255,0.35)",
+                  color: "rgba(243,243,245,0.7)",
                   fontSize: "0.7rem",
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
@@ -211,6 +203,8 @@ export function AdminLogin({
                   <Lock size={15} />
                 </div>
                 <input
+                  id="admin-password"
+                  autoComplete="current-password"
                   type={showPw ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -224,7 +218,7 @@ export function AdminLogin({
                       : "1px solid rgba(212,175,55,0.15)",
                     borderRadius: "12px",
                     color: "white",
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontSize: "0.9rem",
                     padding: "12px 44px",
                     outline: "none",
@@ -257,13 +251,14 @@ export function AdminLogin({
             {/* Error */}
             {error && (
               <motion.div
+                role="alert"
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-2 px-3.5 py-3 rounded-xl"
                 style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)" }}
               >
                 <AlertCircle size={14} style={{ color: "#f87171", flexShrink: 0 }} />
-                <span style={{ color: "#f87171", fontSize: "0.8rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                <span style={{ color: "#f87171", fontSize: "0.8rem", fontFamily: "var(--font-ui)" }}>
                   {error}
                 </span>
               </motion.div>
@@ -275,7 +270,7 @@ export function AdminLogin({
               className="w-full py-3.5 rounded-xl text-black flex items-center justify-center gap-2 transition-all duration-200"
               style={{
                 background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontWeight: 700,
                 fontSize: "0.9rem",
                 boxShadow: "0 0 25px rgba(212,175,55,0.35)",
@@ -298,7 +293,7 @@ export function AdminLogin({
 
           <p
             className="text-center mt-6"
-            style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.72rem", fontFamily: "'Fira Code', monospace" }}
+            style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.72rem", fontFamily: "var(--font-ui)" }}
           >
             Use your admin email and password
           </p>

@@ -57,6 +57,43 @@ export function formatAppointmentWhen(iso: string, timeZone: string): string {
   }).format(new Date(iso));
 }
 
+/**
+ * Calendar cells are business-timezone dates: a cell's year/month/day IS the
+ * booking-zone date, regardless of the visitor's browser timezone. Use this key
+ * (never a browser-local noon converted through the zone) to look up slots.
+ */
+export function calendarDayKey(date: Date): string {
+  return localDateKey(date);
+}
+
+/**
+ * UTC ISO range that fully covers a calendar month in ANY business timezone:
+ * padded by 2 days on each side (max UTC offset is ±14h). Results are grouped
+ * by business-zone date key, so the padding never leaks into other cells.
+ */
+export function monthUtcRangeForZone(month: Date): { from: string; to: string } {
+  const from = new Date(Date.UTC(month.getFullYear(), month.getMonth(), 1) - 2 * 86400000);
+  const to = new Date(Date.UTC(month.getFullYear(), month.getMonth() + 1, 1) + 2 * 86400000);
+  return { from: from.toISOString(), to: to.toISOString() };
+}
+
+/** Today's YYYY-MM-DD in the business timezone. */
+export function todayKeyInZone(timeZone: string): string {
+  return dateKeyInZone(new Date(), timeZone);
+}
+
+/** Short zone label for display, e.g. "EST" / "EDT" (falls back to the IANA id). */
+export function zoneLabel(timeZone: string, at: Date = new Date()): string {
+  try {
+    const part = new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "short" })
+      .formatToParts(at)
+      .find((p) => p.type === "timeZoneName");
+    return part?.value || timeZone;
+  } catch {
+    return timeZone;
+  }
+}
+
 /** Inclusive UTC ISO range covering a calendar month in local browser time. */
 export function monthUtcRange(month: Date): { from: string; to: string } {
   const from = new Date(month.getFullYear(), month.getMonth(), 1, 0, 0, 0, 0);

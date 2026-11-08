@@ -10,8 +10,9 @@ import {
   addMonths,
   dateKeyInZone,
   formatSlotTime,
-  localDateKey,
-  monthUtcRange,
+  calendarDayKey,
+  monthUtcRangeForZone,
+  zoneLabel,
   startOfMonth,
 } from "../../utils/datetime";
 
@@ -26,7 +27,7 @@ const inputBase = {
   border: "1px solid rgba(212,175,55,0.1)",
   borderRadius: "12px",
   color: "white",
-  fontFamily: "'Space Grotesk', sans-serif",
+  fontFamily: "var(--font-ui)",
   fontSize: "0.875rem",
   padding: "11px 14px",
   outline: "none",
@@ -52,7 +53,7 @@ function formatSelectedDay(date: Date) {
 }
 
 const navBtnBase: React.CSSProperties = {
-  fontFamily: "'Space Grotesk', sans-serif",
+  fontFamily: "var(--font-ui)",
   fontWeight: 600,
   fontSize: "0.85rem",
   borderRadius: "12px",
@@ -87,7 +88,7 @@ export function Contact() {
     setSlotsLoading(true);
     setError("");
     try {
-      const { from, to } = monthUtcRange(m);
+      const { from, to } = monthUtcRangeForZone(m);
       const data = await api.getAppointmentSlots(from, to);
       setSlots(data.slots);
       setTimezone(data.timezone);
@@ -116,12 +117,8 @@ export function Contact() {
 
   const daySlots = useMemo(() => {
     if (!selectedDay) return [];
-    // Match slot day keys (in biz timezone) to the calendar cell's local YYYY-MM-DD
-    // by converting the selected local day noon through the same zone formatter.
-    const noon = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), selectedDay.getDate(), 12);
-    const key = dateKeyInZone(noon, timezone);
-    // Also try localDateKey if browser TZ matches booking TZ
-    return slotsByDay.get(key) ?? slotsByDay.get(localDateKey(selectedDay)) ?? [];
+    // Calendar cells are business-timezone dates (see calendarDayKey).
+    return slotsByDay.get(calendarDayKey(selectedDay)) ?? [];
   }, [selectedDay, slotsByDay, timezone]);
 
   const handleSelectDay = (date: Date) => {
@@ -207,20 +204,15 @@ export function Contact() {
           transition={{ duration: reduce ? 0.3 : 0.6 }}
           className="text-center mb-8 md:mb-10"
         >
-          <span style={{ color: "#D4AF37", fontFamily: "'Fira Code', monospace", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-            // book a call
-          </span>
+          <span style={{ color: "#D4AF37", fontFamily: "var(--font-ui)", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.15em" }}>Book a call</span>
           <h2
             className="mt-2"
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: 700,
+              fontFamily: "var(--font-display)",
+              fontWeight: 500,
               fontSize: "clamp(2rem, 4vw, 3rem)",
-              background: "linear-gradient(135deg, #fff 0%, #D4AF37 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              letterSpacing: "-0.02em",
+              color: "var(--brand-offwhite)",
+              letterSpacing: "-0.01em",
             }}
           >
             Schedule a Conversation
@@ -243,11 +235,11 @@ export function Contact() {
                 </div>
                 <h3
                   className="text-white mb-2"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.25rem" }}
+                  style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "1.25rem" }}
                 >
                   Booked — we'll confirm soon
                 </h3>
-                <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.9rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.9rem", fontFamily: "var(--font-ui)" }}>
                   Check your inbox for details. Looking forward to speaking with you.
                 </p>
               </div>
@@ -259,7 +251,7 @@ export function Contact() {
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <CalendarDays size={15} style={{ color: "#D4AF37" }} />
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "var(--font-ui)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
                         Choose a day
                       </span>
                     </div>
@@ -271,14 +263,12 @@ export function Contact() {
                       minMonth={minMonth}
                       maxMonth={maxMonth}
                       getDayMeta={(date) => {
-                        const noon = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-                        const key = dateKeyInZone(noon, timezone);
-                        const has = (slotsByDay.get(key) ?? slotsByDay.get(localDateKey(date)) ?? []).length > 0;
+                        const has = (slotsByDay.get(calendarDayKey(date)) ?? []).length > 0;
                         return { disabled: slotsLoading || !has };
                       }}
                     />
                     {slotsLoading && (
-                      <p className="mt-2" style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.78rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                      <p className="mt-2" style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.78rem", fontFamily: "var(--font-ui)" }}>
                         Loading availability…
                       </p>
                     )}
@@ -289,12 +279,12 @@ export function Contact() {
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <Clock size={15} style={{ color: "#D4AF37" }} />
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                        Available times · {formatSelectedDay(selectedDay)}
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "var(--font-ui)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                        Available times · {formatSelectedDay(selectedDay)} · {zoneLabel(timezone)}
                       </span>
                     </div>
                     {daySlots.length === 0 ? (
-                      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "'Space Grotesk', sans-serif" }}>
+                      <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.85rem", fontFamily: "var(--font-ui)" }}>
                         No open slots this day.
                       </p>
                     ) : (
@@ -311,7 +301,7 @@ export function Contact() {
                               }}
                               className="px-3.5 py-2 rounded-lg text-sm transition-all duration-150"
                               style={{
-                                fontFamily: "'Space Grotesk', sans-serif",
+                                fontFamily: "var(--font-ui)",
                                 background: active ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.03)",
                                 border: active ? "1px solid rgba(212,175,55,0.5)" : "1px solid rgba(255,255,255,0.07)",
                                 color: active ? "#D4AF37" : "rgba(255,255,255,0.55)",
@@ -332,7 +322,7 @@ export function Contact() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-1">
                       <User size={15} style={{ color: "#D4AF37" }} />
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", fontFamily: "var(--font-ui)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
                         Your details
                       </span>
                     </div>
@@ -342,7 +332,7 @@ export function Contact() {
                         style={{
                           color: "rgba(212,175,55,0.75)",
                           fontSize: "0.85rem",
-                          fontFamily: "'Space Grotesk', sans-serif",
+                          fontFamily: "var(--font-ui)",
                         }}
                       >
                         {formatSelectedDay(selectedDay)} · {formatSlotTime(selectedSlot, timezone)}
@@ -350,12 +340,15 @@ export function Contact() {
                     )}
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                        <label htmlFor="book-name" style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "var(--font-ui)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
                           Your Name *
                         </label>
                         <input
                           type="text"
                           required
+                          id="book-name"
+                          maxLength={120}
+                          autoComplete="name"
                           value={form.name}
                           onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
                           placeholder="Alex Johnson"
@@ -365,12 +358,15 @@ export function Contact() {
                         />
                       </div>
                       <div>
-                        <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                        <label htmlFor="book-email" style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "var(--font-ui)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
                           Email *
                         </label>
                         <input
                           type="email"
                           required
+                          id="book-email"
+                          maxLength={254}
+                          autoComplete="email"
                           value={form.email}
                           onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
                           placeholder="alex@company.com"
@@ -382,12 +378,15 @@ export function Contact() {
                     </div>
 
                     <div>
-                      <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                        Company / Project Name
-                      </label>
+                      <label htmlFor="book-company" style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "var(--font-ui)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                          Company / Project Name
+                        </label>
                       <input
                         type="text"
-                        value={form.company}
+                        id="book-company"
+                          maxLength={160}
+                          autoComplete="organization"
+                          value={form.company}
                         onChange={(e) => setForm((s) => ({ ...s, company: e.target.value }))}
                         placeholder="Acme Corp"
                         style={inputBase}
@@ -397,11 +396,13 @@ export function Contact() {
                     </div>
 
                     <div>
-                      <label style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "'Space Grotesk', sans-serif", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
-                        Notes
-                      </label>
+                      <label htmlFor="book-notes" style={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.7rem", fontFamily: "var(--font-ui)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "8px" }}>
+                          Notes
+                        </label>
                       <textarea
                         rows={3}
+                        id="book-notes"
+                        maxLength={4000}
                         value={form.notes}
                         onChange={(e) => setForm((s) => ({ ...s, notes: e.target.value }))}
                         placeholder="Anything we should know before the call…"
@@ -414,7 +415,7 @@ export function Contact() {
                 )}
 
                 {error && (
-                  <div className="text-red-400 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{error}</div>
+                  <div role="alert" className="text-red-400 text-sm" style={{ fontFamily: "var(--font-ui)" }}>{error}</div>
                 )}
 
                 <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between pt-1">

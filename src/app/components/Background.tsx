@@ -15,7 +15,7 @@ export function Background() {
     <div
       className="fixed inset-0 overflow-hidden pointer-events-none"
       style={{
-        background: "linear-gradient(135deg, #060504 0%, #0d0b07 40%, #080806 70%, #050505 100%)",
+        background: "linear-gradient(135deg, #030213 0%, #0b0a1f 40%, #06051a 70%, #030213 100%)",
       }}
     >
       {/* Subtle grid */}

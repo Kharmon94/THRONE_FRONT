@@ -1,1 +1,11 @@
 node_modules
+
+# Build output and local env files (VITE_* values are public, but keep local
+# overrides out of git). NOTE: .env and dist/ are already tracked; see
+# throne-implementation-handoff.md for the one-time `git rm --cached` step.
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store

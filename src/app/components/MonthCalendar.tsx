@@ -64,7 +64,7 @@ export function MonthCalendar({
     <div
       className={className}
       style={{
-        fontFamily: "'Space Grotesk', sans-serif",
+        fontFamily: "var(--font-ui)",
         background: "rgba(255,255,255,0.02)",
         border: "1px solid rgba(212,175,55,0.12)",
         borderRadius: "16px",
@@ -124,7 +124,7 @@ export function MonthCalendar({
             style={{
               color: "rgba(212,175,55,0.45)",
               fontSize: "0.65rem",
-              fontFamily: "'Fira Code', monospace",
+              fontFamily: "var(--font-ui)",
               textTransform: "uppercase",
               letterSpacing: "0.06em",
             }}
@@ -153,7 +153,7 @@ export function MonthCalendar({
               onClick={() => !disabled && onSelect?.(date)}
               className="aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all duration-150 relative"
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontSize: "0.85rem",
                 fontWeight: isSelected || isToday ? 600 : 400,
                 background: isSelected

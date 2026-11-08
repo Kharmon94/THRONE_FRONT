@@ -13,8 +13,9 @@ import {
   dateKeyInZone,
   formatAppointmentWhen,
   formatSlotTime,
-  localDateKey,
-  monthUtcRange,
+  calendarDayKey,
+  monthUtcRangeForZone,
+  zoneLabel,
   startOfMonth,
 } from "../../utils/datetime";
 
@@ -37,7 +38,7 @@ function formatSelectedDay(date: Date) {
 }
 
 const navBtnBase: React.CSSProperties = {
-  fontFamily: "'Space Grotesk', sans-serif",
+  fontFamily: "var(--font-ui)",
   fontWeight: 600,
   fontSize: "0.85rem",
   borderRadius: "12px",
@@ -98,7 +99,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
   const loadSlots = useCallback(async (m: Date) => {
     setSlotsLoading(true);
     try {
-      const { from, to } = monthUtcRange(m);
+      const { from, to } = monthUtcRangeForZone(m);
       const data = await api.getAppointmentSlots(from, to);
       setSlots(data.slots);
       setTimezone(data.timezone);
@@ -127,9 +128,8 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
 
   const daySlots = useMemo(() => {
     if (!selectedDay) return [];
-    const noon = new Date(selectedDay.getFullYear(), selectedDay.getMonth(), selectedDay.getDate(), 12);
-    const key = dateKeyInZone(noon, timezone);
-    return slotsByDay.get(key) ?? slotsByDay.get(localDateKey(selectedDay)) ?? [];
+    // Calendar cells are business-timezone dates (see calendarDayKey).
+    return slotsByDay.get(calendarDayKey(selectedDay)) ?? [];
   }, [selectedDay, slotsByDay, timezone]);
 
   const goNext = () => {
@@ -169,7 +169,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
   const maxMonth = addMonths(minMonth, 3);
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div className="min-h-screen relative overflow-x-hidden" style={{ fontFamily: "var(--font-ui)" }}>
       <Background />
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-xl">
@@ -185,7 +185,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
               >
                 <AlertCircle size={22} style={{ color: "#f87171" }} />
               </div>
-              <h1 className="text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.25rem" }}>
+              <h1 className="text-white mb-2" style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "1.25rem" }}>
                 Link unavailable
               </h1>
               <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.9rem", marginBottom: "20px" }}>
@@ -212,7 +212,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
               >
                 <CheckCircle size={22} style={{ color: "#10b981" }} />
               </div>
-              <h1 className="text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "1.25rem" }}>
+              <h1 className="text-white mb-2" style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "1.25rem" }}>
                 Reschedule requested
               </h1>
               <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.9rem", marginBottom: "20px" }}>
@@ -236,7 +236,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
               <div className="flex items-center gap-3 mb-6">
                 <ThroneIcon size={28} />
                 <div>
-                  <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "0.95rem", background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                  <div style={{ fontFamily: "var(--font-ui)", fontWeight: 700, fontSize: "0.95rem", background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
                     Reschedule appointment
                   </div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.78rem" }}>
@@ -272,9 +272,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
                       minMonth={minMonth}
                       maxMonth={maxMonth}
                       getDayMeta={(date) => {
-                        const noon = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-                        const key = dateKeyInZone(noon, timezone);
-                        const has = (slotsByDay.get(key) ?? slotsByDay.get(localDateKey(date)) ?? []).length > 0;
+                        const has = (slotsByDay.get(calendarDayKey(date)) ?? []).length > 0;
                         return { disabled: slotsLoading || !has };
                       }}
                     />
@@ -291,7 +289,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
                     <div className="flex items-center gap-2 mb-3">
                       <Clock size={15} style={{ color: "#D4AF37" }} />
                       <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                        Available times · {formatSelectedDay(selectedDay)}
+                        Available times · {formatSelectedDay(selectedDay)} · {zoneLabel(timezone)}
                       </span>
                     </div>
                     {daySlots.length === 0 ? (
@@ -312,7 +310,7 @@ export function RescheduleBooking({ token, onDone }: RescheduleBookingProps) {
                               }}
                               className="px-3.5 py-2 rounded-lg text-sm transition-all"
                               style={{
-                                fontFamily: "'Space Grotesk', sans-serif",
+                                fontFamily: "var(--font-ui)",
                                 background: active ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.03)",
                                 border: active ? "1px solid rgba(212,175,55,0.5)" : "1px solid rgba(255,255,255,0.07)",
                                 color: active ? "#D4AF37" : "rgba(255,255,255,0.55)",

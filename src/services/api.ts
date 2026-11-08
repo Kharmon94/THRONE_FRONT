@@ -14,11 +14,63 @@ const BASE_URL =
   (import.meta.env.VITE_API_URL && String(import.meta.env.VITE_API_URL).trim()) ||
   (import.meta.env.DEV ? "http://localhost:3000" : "");
 
+/** Error with the HTTP status (0 = network failure) so callers can react precisely. */
+export class ApiError extends Error {
+  status: number;
+  body: unknown;
+  constructor(message: string, status: number, body: unknown = null) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
+const NETWORK_ERROR_MESSAGE =
+  "We couldn't reach the server. Check your connection and try again.";
+
+function friendlyStatusMessage(status: number): string {
+  if (status === 429) return "Too many requests. Please wait a minute and try again.";
+  if (status === 401) return "Your session has expired. Please sign in again.";
+  if (status === 403) return "You don't have access to that.";
+  if (status === 404) return "Not found.";
+  if (status >= 500) return "The server had a problem. Please try again shortly.";
+  return "Request failed. Please try again.";
+}
+
+/** Parse a fetch Response safely: non-JSON bodies (e.g. a proxy 502 page) never throw a SyntaxError. */
+async function parseResponse<T>(res: Response): Promise<T> {
+  const text = await res.text().catch(() => "");
+  let data: unknown = {};
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = {};
+    }
+  }
+  if (!res.ok) {
+    const err = (data || {}) as { error?: string; errors?: string[] };
+    const message = err.error || err.errors?.[0] || friendlyStatusMessage(res.status);
+    if (res.status === 401) clearToken();
+    throw new ApiError(message, res.status, data);
+  }
+  return data as T;
+}
+
+async function safeFetch(url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch {
+    throw new ApiError(NETWORK_ERROR_MESSAGE, 0);
+  }
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = localStorage.getItem(TOKEN_KEY);
+  const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
@@ -26,21 +78,34 @@ async function request<T>(
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-  const res = await fetch(`${BASE_URL}/api/v1${path}`, {
+  const res = await safeFetch(`${BASE_URL}/api/v1${path}`, {
     ...options,
     headers,
   });
-  const text = await res.text();
-  const data = (text ? JSON.parse(text) : {}) as T;
-  if (!res.ok) {
-    const err = data as { error?: string; errors?: string[] };
-    throw new Error(err?.error || err?.errors?.[0] || "Request failed");
+  return parseResponse<T>(res);
+}
+
+/** Reads the exp claim (seconds) from a JWT without verifying it (server verifies). */
+function tokenExpiry(token: string): number | null {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof json.exp === "number" ? json.exp : null;
+  } catch {
+    return null;
   }
-  return data as T;
 }
 
 function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) return null;
+  const exp = tokenExpiry(token);
+  if (exp !== null && exp * 1000 <= Date.now()) {
+    localStorage.removeItem(TOKEN_KEY);
+    return null;
+  }
+  return token;
 }
 
 function setToken(token: string): void {
@@ -89,9 +154,15 @@ export const api = {
     try {
       const data = await request<{ user: User }>("/auth/me");
       return data.user;
-    } catch {
-      clearToken();
-      return null;
+    } catch (err) {
+      // Only an auth rejection ends the session (request() already cleared the
+      // token on 401/403 paths below). A network blip or 5xx keeps the token so
+      // the admin is not logged out by a transient outage.
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        clearToken();
+        return null;
+      }
+      throw err;
     }
   },
 
@@ -116,13 +187,12 @@ export const api = {
     const token = getToken();
     if (token) headers["Authorization"] = `Bearer ${token}`;
     if (!isForm) headers["Content-Type"] = "application/json";
-    const res = await fetch(`${BASE_URL}/api/v1/admin/projects`, {
+    const res = await safeFetch(`${BASE_URL}/api/v1/admin/projects`, {
       method: "POST",
       headers,
       body: isForm ? body : JSON.stringify({ project: body }),
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || data.errors?.[0] || "Request failed");
+    const data = await parseResponse<{ project: Project }>(res);
     return data.project;
   },
 
@@ -132,13 +202,12 @@ export const api = {
     const token = getToken();
     if (token) headers["Authorization"] = `Bearer ${token}`;
     if (!isForm) headers["Content-Type"] = "application/json";
-    const res = await fetch(`${BASE_URL}/api/v1/admin/projects/${id}`, {
+    const res = await safeFetch(`${BASE_URL}/api/v1/admin/projects/${id}`, {
       method: "PATCH",
       headers,
       body: isForm ? body : JSON.stringify({ project: body }),
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || data.errors?.[0] || "Request failed");
+    const data = await parseResponse<{ project: Project }>(res);
     return data.project;
   },
 
@@ -208,12 +277,21 @@ export const api = {
     return data.appointment;
   },
 
-  async emailAppointmentReschedule(id: number): Promise<Appointment> {
-    const data = await request<{ appointment: Appointment; message?: string }>(
-      `/admin/appointments/${id}/reschedule`,
-      { method: "POST" }
-    );
-    return data.appointment;
+  async emailAppointmentReschedule(id: number): Promise<{
+    appointment: Appointment;
+    emailStatus: string;
+    message?: string;
+  }> {
+    const data = await request<{
+      appointment: Appointment;
+      email_status?: string;
+      message?: string;
+    }>(`/admin/appointments/${id}/reschedule`, { method: "POST" });
+    return {
+      appointment: data.appointment,
+      emailStatus: data.email_status || "accepted_by_provider",
+      message: data.message,
+    };
   },
 
   async deleteAppointment(id: number): Promise<void> {

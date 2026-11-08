@@ -30,7 +30,7 @@ export function BookingStepIndicator({ steps, current }: BookingStepIndicatorPro
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-[1]"
                 style={{
-                  fontFamily: "'Fira Code', monospace",
+                  fontFamily: "var(--font-ui)",
                   fontSize: "0.75rem",
                   fontWeight: 600,
                   background: active || done
@@ -61,7 +61,7 @@ export function BookingStepIndicator({ steps, current }: BookingStepIndicatorPro
             <span
               className="truncate w-full px-1"
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontSize: "0.72rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",

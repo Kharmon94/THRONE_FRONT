@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ThroneIcon } from "../ThroneIcon";
+import { BrandWordmark } from "../BrandWordmark";
 import { useReduceAnimations } from "../../../hooks/useReduceAnimations";
 import type { Page, AdminSubPage } from "../../App";
 
@@ -41,27 +42,14 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
         className="px-5 py-6 flex items-center gap-3"
         style={{ borderBottom: "1px solid rgba(212,175,55,0.1)" }}
       >
-        <ThroneIcon size={30} />
+        <ThroneIcon size={34} />
         <div>
-          <div
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: 700,
-              fontSize: "0.95rem",
-              background: "linear-gradient(135deg, #F0D060, #D4AF37)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            THRONE TECH
-          </div>
+          <BrandWordmark width={92} label="Throne Tech" />
           <div
             style={{
               color: "rgba(212,175,55,0.4)",
               fontSize: "0.58rem",
-              fontFamily: "'Fira Code', monospace",
+              fontFamily: "var(--font-ui)",
               letterSpacing: "0.15em",
               textTransform: "uppercase",
             }}
@@ -77,7 +65,7 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
           style={{
             color: "rgba(212,175,55,0.35)",
             fontSize: "0.62rem",
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "var(--font-ui)",
             fontWeight: 600,
             textTransform: "uppercase",
             letterSpacing: "0.12em",
@@ -95,7 +83,7 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
               onClick={() => { setAdminSubPage(key); setSidebarOpen(false); }}
               className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 w-full text-left"
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontWeight: isActive ? 600 : 400,
                 background: isActive ? "rgba(212,175,55,0.12)" : "transparent",
                 border: isActive ? "1px solid rgba(212,175,55,0.2)" : "1px solid transparent",
@@ -119,7 +107,7 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
           onClick={() => onNavigate("home")}
           className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 w-full"
           style={{
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "var(--font-ui)",
             fontWeight: 400,
             color: "rgba(255,255,255,0.35)",
             background: "none",
@@ -143,7 +131,7 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
           onClick={handleLogout}
           className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 w-full"
           style={{
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "var(--font-ui)",
             fontWeight: 400,
             color: "rgba(239,68,68,0.5)",
             background: "transparent",
@@ -173,8 +161,8 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
     <div
       className="min-h-screen flex"
       style={{
-        background: "linear-gradient(135deg, #060504 0%, #0a0806 100%)",
-        fontFamily: "'Space Grotesk', sans-serif",
+        background: "linear-gradient(135deg, #030213 0%, #0b0a1f 100%)",
+        fontFamily: "var(--font-ui)",
       }}
     >
       {/* Desktop Sidebar */}
@@ -209,7 +197,7 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="fixed left-0 top-0 bottom-0 z-50 w-60 lg:hidden"
               style={{
-                background: "#0a0806",
+                background: "#0b0a1f",
                 borderRight: "1px solid rgba(212,175,55,0.15)",
               }}
             >
@@ -244,7 +232,7 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
               style={{
                 color: "rgba(255,255,255,0.3)",
                 fontSize: "0.8rem",
-                fontFamily: "'Fira Code', monospace",
+                fontFamily: "var(--font-ui)",
               }}
             >
               throne.admin /
@@ -263,9 +251,9 @@ export function AdminShell({ onNavigate, adminSubPage, setAdminSubPage, renderCh
                 className="w-6 h-6 rounded-lg flex items-center justify-center"
                 style={{ background: "linear-gradient(135deg, #F0D060, #D4AF37)" }}
               >
-                <span style={{ color: "#0a0800", fontSize: "0.65rem", fontWeight: 700 }}>A</span>
+                <span style={{ color: "#030213", fontSize: "0.65rem", fontWeight: 700 }}>A</span>
               </div>
-              <span style={{ color: "rgba(212,175,55,0.8)", fontSize: "0.8rem", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500 }}>
+              <span style={{ color: "rgba(212,175,55,0.8)", fontSize: "0.8rem", fontFamily: "var(--font-ui)", fontWeight: 500 }}>
                 Admin
               </span>
             </div>

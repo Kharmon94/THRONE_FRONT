@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+// ESM shim: package.json has "type": "module", so require/__dirname are not
+// defined natively. createRequire keeps the original CommonJS-style body working.
+import { createRequire } from "module";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+const require = createRequire(import.meta.url);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 
 const FIGMA_REPO_URL = process.env.FIGMA_REPO_URL || "https://github.com/Kharmon94/3dglassmorphismportfolio.git";
 const DESIGN_REPO_DIR = ".figma-design-repo";
