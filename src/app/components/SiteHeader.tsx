@@ -166,7 +166,16 @@ export function SiteHeader() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
         <a href="#top" aria-label="Throne Tech — home" className="flex items-center">
-          <ThroneIcon size={44} />
+          {/* Approved avatar mark, header only: 56px mobile, 64px from md (fits the 72px bar). */}
+          <img
+            src="/brand/throne-tech-avatar.svg"
+            alt=""
+            aria-hidden="true"
+            width={64}
+            height={64}
+            draggable={false}
+            className="block shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-[22%]"
+          />
         </a>
 
         <nav aria-label="Primary" className="hidden md:flex items-center gap-6">
