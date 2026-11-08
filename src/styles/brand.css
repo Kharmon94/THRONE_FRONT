@@ -121,9 +121,50 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+/* Mobile navigation drawer: slides in from the left over a dimmed backdrop. */
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(3, 2, 19, 0.72);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms ease, visibility 0s linear 200ms;
+}
+.mobile-drawer-backdrop[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 200ms ease;
+}
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 61;
+  width: min(86vw, 340px);
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: var(--brand-navy);
+  border-right: 1px solid var(--brand-gold);
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.45);
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition: transform 240ms ease, visibility 0s linear 240ms;
+}
+.mobile-drawer[data-open="true"] {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 240ms ease;
+}
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .brand-btn, .skip-link { transition: none; }
+  .brand-btn, .skip-link, .mobile-drawer, .mobile-drawer-backdrop { transition: none; }
 }

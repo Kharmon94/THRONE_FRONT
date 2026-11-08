@@ -1,4 +1,4 @@
-import { BrandWordmark } from "./BrandWordmark";
+import { ThroneIcon } from "./ThroneIcon";
 import { BLOG_URL } from "../../config/site";
 
 export function SiteFooter() {
@@ -10,7 +10,7 @@ export function SiteFooter() {
     >
       <div className="max-w-6xl mx-auto py-12 grid gap-10 md:grid-cols-3">
         <div>
-          <BrandWordmark width={120} />
+          <ThroneIcon size={48} />
           <p className="mt-4" style={{ color: "var(--brand-muted)", fontSize: "0.9rem", lineHeight: 1.7 }}>
             Websites and custom software by Throne Technology.
           </p>
