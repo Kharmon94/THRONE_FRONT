@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ProjectsProvider } from "./context/ProjectsContext";
 import { PublicSite } from "./pages/PublicSite";
 import { NewsletterPage } from "./pages/NewsletterPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
 import { AdminLogin } from "./components/admin/AdminLogin";
 import { AdminShell } from "./components/admin/AdminShell";
 import { AdminProjects } from "./components/admin/AdminProjects";
@@ -96,10 +97,13 @@ function AppContent() {
 }
 
 // Dedicated path route (needs the matching rewrite in public/serve.json).
-const isNewsletterPath = () => window.location.pathname.replace(/\/+$/, "") === "/newsletter";
+const currentPath = () => window.location.pathname.replace(/\/+$/, "");
 
 export default function App() {
-  if (isNewsletterPath()) {
+  if (currentPath() === "/privacy") {
+    return <PrivacyPage />;
+  }
+  if (currentPath() === "/newsletter") {
     return (
       <MotionConfig reducedMotion="user">
         <NewsletterPage />

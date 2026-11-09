@@ -46,7 +46,10 @@ export function SiteFooter() {
         className="max-w-6xl mx-auto py-6 text-sm"
         style={{ color: "rgba(243,243,245,0.6)", borderTop: "1px solid rgba(243,243,245,0.08)" }}
       >
-        © {year} Throne Technology. All rights reserved.
+        © {year} Throne Technology. All rights reserved.{" "}
+        <a href="/privacy" className="underline" style={{ color: "inherit" }}>
+          Privacy
+        </a>
       </div>
     </footer>
   );
