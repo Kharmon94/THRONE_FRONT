@@ -124,6 +124,34 @@ function rangeQuery(from?: string, to?: string): string {
   return q ? `?${q}` : "";
 }
 
+/** Public newsletter endpoints. Never sends the admin Authorization header. */
+async function newsletterRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await safeFetch(`${BASE_URL}/api/v1/newsletter${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init.headers as Record<string, string>) },
+  });
+  return parseResponse<T>(res);
+}
+
+export type NewsletterConfig =
+  | { signup_open: false }
+  | { signup_open: true; privacy_url: string; consent_version: string };
+
+export const newsletterApi = {
+  config: () => newsletterRequest<NewsletterConfig>("/config"),
+  subscribe: (body: {
+    email: string;
+    consent: boolean;
+    website: string;
+    utm_source?: string;
+    utm_campaign?: string;
+  }) => newsletterRequest<{ status: "check_email" }>("/subscriptions", { method: "POST", body: JSON.stringify(body) }),
+  confirm: (token: string) =>
+    newsletterRequest<{ status: "subscribed" }>("/confirmations", { method: "POST", body: JSON.stringify({ token }) }),
+  unsubscribe: (token: string) =>
+    newsletterRequest<{ status: "unsubscribed" }>("/unsubscribe", { method: "POST", body: JSON.stringify({ token }) }),
+};
+
 export const api = {
   getToken,
   setToken,

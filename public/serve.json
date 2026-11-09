@@ -9,6 +9,14 @@
     {
       "source": "/appointments/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/newsletter",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/newsletter/",
+      "destination": "/index.html"
     }
   ],
   "headers": [

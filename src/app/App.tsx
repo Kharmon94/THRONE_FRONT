@@ -3,6 +3,7 @@ import { MotionConfig } from "motion/react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ProjectsProvider } from "./context/ProjectsContext";
 import { PublicSite } from "./pages/PublicSite";
+import { NewsletterPage } from "./pages/NewsletterPage";
 import { AdminLogin } from "./components/admin/AdminLogin";
 import { AdminShell } from "./components/admin/AdminShell";
 import { AdminProjects } from "./components/admin/AdminProjects";
@@ -94,7 +95,17 @@ function AppContent() {
   return <>{renderPage()}</>;
 }
 
+// Dedicated path route (needs the matching rewrite in public/serve.json).
+const isNewsletterPath = () => window.location.pathname.replace(/\/+$/, "") === "/newsletter";
+
 export default function App() {
+  if (isNewsletterPath()) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <NewsletterPage />
+      </MotionConfig>
+    );
+  }
   return (
     <MotionConfig reducedMotion="user">
       <AuthProvider>
